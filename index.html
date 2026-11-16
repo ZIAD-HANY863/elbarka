@@ -299,6 +299,42 @@ small {
   margin-top:5px;
 }
 
+.inventory-filters {
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:15px;
+  margin-bottom:15px;
+}
+
+.expiring-notice {
+  display:none;
+  padding:14px;
+  background:#fff3cd;
+  color:#856404;
+  border:1px solid #ffe69c;
+  border-right:5px solid var(--warning);
+  border-radius:8px;
+  margin:15px 0;
+  font-weight:bold;
+}
+
+.expiring-notice.has-expired {
+  background:#f8d7da;
+  color:#842029;
+  border-color:#f5c2c7;
+  border-right-color:var(--danger);
+}
+
+.tab-count {
+  display:inline-block;
+  background:var(--danger);
+  color:white;
+  border-radius:20px;
+  padding:2px 7px;
+  font-size:12px;
+  margin-right:4px;
+}
+
 @media(max-width:600px) {
   body {
     padding:8px;
@@ -341,7 +377,10 @@ onclick="switchTab('all-inventory',this)">📦 المخزون والأقسام</
 onclick="switchTab('pos',this)">🛒 الكاشير السريع</button>
 
 <button class="tab-btn"
-onclick="switchTab('expiring',this)">⚠️ تنبيهات الصلاحية</button>
+id="expiringTabButton"
+onclick="switchTab('expiring',this)">
+⚠️ تنبيهات الصلاحية
+</button>
 
 <button class="tab-btn"
 onclick="switchTab('reports',this)">📊 الأرباح والتقارير</button>
@@ -442,15 +481,29 @@ required min="0" step="0.01">
 
 <div class="card">
 
-<h3>📦 متابعة المخزون وفلترة الأقسام</h3>
+<h3>📦 متابعة المخزون وفلترة الأقسام والشركات</h3>
+
+<div class="inventory-filters">
 
 <div class="form-group">
-<label>عرض حسب القسم</label>
+<label>اختر القسم</label>
 
 <select id="filterByCategorySelect"
-onchange="renderFilteredInventory()">
-<option value="ALL">عرض كل الأقسام</option>
+onchange="updateInventoryCompanyOptions()">
+<option value="">-- اختر القسم --</option>
+<option value="ALL">كل الأقسام</option>
 </select>
+</div>
+
+<div class="form-group">
+<label>اختر الشركة</label>
+
+<select id="filterByCompanySelect"
+onchange="renderFilteredInventory()" disabled>
+<option value="">اختر القسم أولاً</option>
+</select>
+</div>
+
 </div>
 
 <div class="table-responsive">
@@ -471,7 +524,7 @@ onchange="renderFilteredInventory()">
 </thead>
 
 <tbody id="allInventoryBody">
-<tr><td colspan="10">جاري التحميل...</td></tr>
+<tr><td colspan="10">اختر القسم والشركة لعرض المخزون.</td></tr>
 </tbody>
 </table>
 </div>
@@ -488,30 +541,18 @@ onchange="renderFilteredInventory()">
 
 <h3>🛒 الكاشير السريع</h3>
 
-<!-- الخطوة الأولى: القسم -->
-
 <div class="form-group pos-step">
 
-<label>1- ابحث باسم القسم</label>
+<label>1- اختر القسم</label>
 
-<input type="text"
-id="searchPos"
-autocomplete="off"
-placeholder="ابدأ بكتابة اسم القسم مثل: اس..."
-oninput="filterPosDropdown()"
-onfocus="filterPosDropdown()"
-aria-label="ابحث باسم القسم">
-
-<div id="posCategorySuggestions"
-class="pos-suggestions"
-role="listbox"
-aria-label="اقتراحات الأقسام"></div>
+<select id="searchPos">
+<option value="">-- اختر القسم --</option>
+</select>
 
 <div class="pos-help">اختر القسم الذي يوجد به المنتج.</div>
 
 </div>
 
-<!-- الخطوة الثانية: الشركة -->
 
 <div class="form-group pos-step">
 
@@ -525,7 +566,6 @@ aria-label="اقتراحات الأقسام"></div>
 
 </div>
 
-<!-- الخطوة الثالثة: البحث عن المنتج -->
 
 <div class="form-group pos-step">
 
@@ -540,7 +580,7 @@ placeholder="اختر القسم والشركة أولاً">
 <div id="posProductSuggestions"
 class="pos-suggestions"></div>
 
-<div class="pos-help">ستظهر اقتراحات المنتجات التابعة للشركة والقسم المختارين فقط.</div>
+<div class="pos-help">ستظهر المنتجات التابعة للشركة والقسم المختارين فقط.</div>
 
 </div>
 
@@ -594,6 +634,8 @@ style="background:#e9ecef;font-weight:bold;color:green">
 <div class="card" style="border-top:4px solid var(--warning)">
 
 <h3>⚠️ المنتجات القريبة من انتهاء الصلاحية</h3>
+
+<div id="expiringNotice" class="expiring-notice"></div>
 
 <div class="table-responsive">
 <table>
@@ -649,8 +691,6 @@ style="background:#e9ecef;font-weight:bold;color:green">
 </div>
 
 
-<!-- سجل أرباح جميع الشهور -->
-
 <div class="card">
 
 <h3>📊 سجل أرباح جميع الشهور</h3>
@@ -674,8 +714,6 @@ style="background:#e9ecef;font-weight:bold;color:green">
 
 </div>
 
-
-<!-- المصروفات -->
 
 <div class="card" style="border-top:4px solid var(--danger)">
 
@@ -708,8 +746,6 @@ placeholder="مثال: فاتورة كهرباء">
 </div>
 
 
-<!-- أرباح الأقسام -->
-
 <div class="card">
 
 <h3>📊 الأرباح ورأس المال بالأقسام</h3>
@@ -730,8 +766,6 @@ placeholder="مثال: فاتورة كهرباء">
 
 </div>
 
-
-<!-- تصفير البيانات -->
 
 <div class="card" style="border:2px solid var(--danger)">
 
@@ -771,8 +805,6 @@ updateDoc
 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 
-// إعداد Firebase
-
 const firebaseConfig = {
 apiKey:"AIzaSyDd1u5PvoSgxc_RPh5eIerP_4WBOMsMtAk",
 authDomain:"makhzn-944f7.firebaseapp.com",
@@ -796,10 +828,7 @@ let selectedPosCategory = "";
 let selectedPosCompany = "";
 
 
-// حماية النصوص عند عرضها داخل HTML
-
 function escapeHtml(value) {
-
 return String(value ?? "").replace(/[&<>"']/g, char => ({
 "&":"&amp;",
 "<":"&lt;",
@@ -807,23 +836,15 @@ return String(value ?? "").replace(/[&<>"']/g, char => ({
 '"':"&quot;",
 "'":"&#039;"
 })[char]);
-
 }
 
-
-// الشركة للمنتجات القديمة
 
 function companyOf(item) {
-
 return String(item.company || "").trim() || "لا شيء";
-
 }
 
 
-// توحيد الحروف العربية في البحث
-
 function normalizeArabicSearch(value) {
-
 return String(value || "")
 .normalize("NFD")
 .replace(/[\u064B-\u065F\u0670]/g,"")
@@ -836,7 +857,6 @@ return String(value || "")
 .toLowerCase()
 .trim()
 .replace(/\s+/g," ");
-
 }
 
 
@@ -859,51 +879,35 @@ if(btnElement) btnElement.classList.add("active");
 };
 
 
-// وحدات القياس حسب القسم
+// وحدات القياس
 
 const categoryUnits = {
-
 "لحوم وكبدة":["كيلو"],
-
 "أسماك ورنجة":["كيلو"],
-
 "توابل":["عبوة","كيس","علبة"],
-
 "بيض":["طبق","كرتونة","بيضة"],
-
 "مصنعات وبطاطس":["كيلو","كيس","قطعة","عبوة"]
-
 };
 
 
 function getUnitsForCategory(category) {
-
 return categoryUnits[category] || ["قطعة","عبوة","كيس"];
-
 }
 
-
-// تحديث وحدات القياس
 
 function refreshProductUnits(preferredUnit="") {
 
 const category = document.getElementById("category").value;
-
 const unitSelect = document.getElementById("productUnit");
-
 const units = getUnitsForCategory(category);
 
 unitSelect.innerHTML = "";
 
 units.forEach(unit=>{
-
 const option = document.createElement("option");
-
 option.value = unit;
 option.textContent = unit;
-
 unitSelect.appendChild(option);
-
 });
 
 if(preferredUnit && units.includes(preferredUnit)) {
@@ -924,7 +928,7 @@ refreshProductUnits();
 };
 
 
-// تاريخ الشهر الحالي
+// الشهر الحالي
 
 const now = new Date();
 
@@ -932,7 +936,7 @@ document.getElementById("reportMonth").value =
 `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
 
 
-// تحديث اقتراحات أسماء المنتجات
+// اقتراحات أسماء المنتجات في صفحة الإضافة
 
 function updateAutocompleteLists() {
 
@@ -944,14 +948,10 @@ const names = [
 
 namesList.innerHTML = "";
 
-names.forEach(name => {
-
+names.forEach(name=>{
 const option = document.createElement("option");
-
 option.value = name;
-
 namesList.appendChild(option);
-
 });
 
 }
@@ -964,8 +964,7 @@ document.getElementById("productForm")
 
 e.preventDefault();
 
-let selectedCat =
-document.getElementById("category").value;
+let selectedCat = document.getElementById("category").value;
 
 if(selectedCat === "__NEW__") {
 
@@ -991,15 +990,13 @@ return alert("اكتب اسم المنتج!");
 const totalQty =
 parseFloat(document.getElementById("productQuantity").value) || 0;
 
-const unit =
-document.getElementById("productUnit").value;
+const unit = document.getElementById("productUnit").value;
 
 if(totalQty <= 0 || !unit) {
 return alert("أدخل كمية ووحدة قياس صحيحتين!");
 }
 
-const prodDateStr =
-document.getElementById("prodDate").value;
+const prodDateStr = document.getElementById("prodDate").value;
 
 const shelfMonths =
 parseInt(document.getElementById("shelfMonths").value,10);
@@ -1009,20 +1006,16 @@ return alert("أدخل تاريخ الإنتاج ومدة صلاحية صحيح�
 }
 
 const pDate = new Date(`${prodDateStr}T12:00:00`);
-
 pDate.setMonth(pDate.getMonth()+shelfMonths);
 
 const expDateStr =
 `${pDate.getFullYear()}-${String(pDate.getMonth()+1).padStart(2,"0")}-${String(pDate.getDate()).padStart(2,"0")}`;
 
-const buyPrice =
-parseFloat(document.getElementById("buyPrice").value);
-
-const sellPrice =
-parseFloat(document.getElementById("sellPrice").value);
+const buyPrice = parseFloat(document.getElementById("buyPrice").value);
+const sellPrice = parseFloat(document.getElementById("sellPrice").value);
 
 if(!Number.isFinite(buyPrice) || buyPrice < 0 ||
-   !Number.isFinite(sellPrice) || sellPrice < 0) {
+!Number.isFinite(sellPrice) || sellPrice < 0) {
 return alert("تأكد من إدخال أسعار صحيحة.");
 }
 
@@ -1044,7 +1037,6 @@ createdAt:new Date()
 });
 
 document.getElementById("productForm").reset();
-
 document.getElementById("newCategoryGroup").style.display="none";
 
 onCategoryChange();
@@ -1052,9 +1044,7 @@ onCategoryChange();
 alert("تم حفظ الدفعة بنجاح!");
 
 } catch(err) {
-
 alert("خطأ في الحفظ: "+err.message);
-
 }
 
 });
@@ -1095,15 +1085,13 @@ alert("تم خصم "+amount+" ج.م بنجاح!");
 document.getElementById("deductProfitForm").reset();
 
 } catch(err) {
-
 alert("خطأ أثناء الخصم: "+err.message);
-
 }
 
 });
 
 
-// تحميل المنتجات من Firebase
+// تحميل المنتجات
 
 onSnapshot(productsRef,snapshot=>{
 
@@ -1112,23 +1100,18 @@ localBatches=[];
 snapshot.forEach(docSnap=>{
 
 const item = docSnap.data();
-
 item.id = docSnap.id;
-
 localBatches.push(item);
 
 });
 
 updateCategorySelects();
-
 updateAutocompleteLists();
-
+updateInventoryCompanyOptions();
 renderFilteredInventory();
-
-filterPosDropdown();
-
+updatePosCategorySelect();
+updatePosCompanyOptions();
 renderExpiringProducts();
-
 updateReports();
 
 });
@@ -1143,17 +1126,12 @@ allSales=[];
 snapshot.forEach(docSnap=>{
 
 const sale = docSnap.data();
-
 sale.id = docSnap.id;
 
 if(sale.soldAt && typeof sale.soldAt.toDate === "function") {
-
 sale.soldAtDate = sale.soldAt.toDate();
-
 } else {
-
 sale.soldAtDate = null;
-
 }
 
 allSales.push(sale);
@@ -1165,14 +1143,12 @@ updateReports();
 });
 
 
-// تحديث الأقسام
+// تحديث الأقسام في صفحة الإضافة والمخزون
 
 function updateCategorySelects() {
 
 const addSelect = document.getElementById("category");
-
-const filterSelect =
-document.getElementById("filterByCategorySelect");
+const filterSelect = document.getElementById("filterByCategorySelect");
 
 const currentFilterVal = filterSelect.value;
 
@@ -1188,21 +1164,18 @@ const dynamicCats = [
 ...new Set(localBatches.map(p=>p.category).filter(Boolean))
 ];
 
-const allCats = [
-...new Set([...existingCats,...dynamicCats])
-];
+const allCats = [...new Set([...existingCats,...dynamicCats])];
 
 dynamicCats.forEach(cat=>{
 
 if(!existingCats.includes(cat) && cat!=="مصروفات") {
 
-let exists = Array.from(addSelect.options)
+const exists = Array.from(addSelect.options)
 .some(opt=>opt.value===cat);
 
 if(!exists) {
 
 const opt = document.createElement("option");
-
 opt.value = cat;
 opt.textContent = cat;
 
@@ -1218,14 +1191,14 @@ addSelect.options[addSelect.options.length-1]
 });
 
 filterSelect.innerHTML =
-'<option value="ALL">عرض كل الأقسام</option>';
+'<option value="">-- اختر القسم --</option>' +
+'<option value="ALL">كل الأقسام</option>';
 
 allCats.forEach(cat=>{
 
 if(cat==="مصروفات") return;
 
 const opt = document.createElement("option");
-
 opt.value = cat;
 opt.textContent = cat;
 
@@ -1233,14 +1206,73 @@ filterSelect.appendChild(opt);
 
 });
 
-if(Array.from(filterSelect.options)
-.some(o=>o.value===currentFilterVal)) {
-
+if(Array.from(filterSelect.options).some(o=>o.value===currentFilterVal)) {
 filterSelect.value=currentFilterVal;
-
 }
 
 }
+
+
+// ========================================
+// فلترة المخزون بالقسم والشركة
+// ========================================
+
+window.updateInventoryCompanyOptions = function() {
+
+const category =
+document.getElementById("filterByCategorySelect").value;
+
+const companySelect =
+document.getElementById("filterByCompanySelect");
+
+const previousCompany = companySelect.value;
+
+companySelect.innerHTML = "";
+
+if(!category) {
+
+companySelect.innerHTML =
+'<option value="">اختر القسم أولاً</option>';
+
+companySelect.disabled = true;
+renderFilteredInventory();
+return;
+
+}
+
+let relevantItems = localBatches;
+
+if(category !== "ALL") {
+relevantItems = relevantItems.filter(p=>p.category===category);
+}
+
+const companies = [
+...new Set(relevantItems.map(p=>companyOf(p)))
+].sort((a,b)=>a.localeCompare(b,"ar"));
+
+companySelect.innerHTML =
+'<option value="">-- اختر الشركة --</option>' +
+'<option value="ALL">كل الشركات</option>';
+
+companies.forEach(company=>{
+
+const option = document.createElement("option");
+option.value = company;
+option.textContent = company;
+
+companySelect.appendChild(option);
+
+});
+
+companySelect.disabled = false;
+
+if(Array.from(companySelect.options).some(o=>o.value===previousCompany)) {
+companySelect.value = previousCompany;
+}
+
+renderFilteredInventory();
+
+};
 
 
 // عرض المخزون
@@ -1250,30 +1282,46 @@ window.renderFilteredInventory = function() {
 const selectedCat =
 document.getElementById("filterByCategorySelect").value;
 
-const tbody =
-document.getElementById("allInventoryBody");
+const selectedCompany =
+document.getElementById("filterByCompanySelect").value;
 
-tbody.innerHTML="";
+const tbody = document.getElementById("allInventoryBody");
 
-const filtered =
-selectedCat==="ALL"
-? localBatches
-: localBatches.filter(p=>p.category===selectedCat);
+tbody.innerHTML = "";
+
+if(!selectedCat) {
+tbody.innerHTML =
+'<tr><td colspan="10">اختر القسم أولاً لعرض المخزون.</td></tr>';
+return;
+}
+
+if(!selectedCompany) {
+tbody.innerHTML =
+'<tr><td colspan="10">اختر الشركة لعرض المنتجات.</td></tr>';
+return;
+}
+
+let filtered = localBatches;
+
+if(selectedCat !== "ALL") {
+filtered = filtered.filter(p=>p.category===selectedCat);
+}
+
+if(selectedCompany !== "ALL") {
+filtered = filtered.filter(p=>companyOf(p)===selectedCompany);
+}
 
 if(filtered.length===0) {
-
 tbody.innerHTML =
-'<tr><td colspan="10">لا توجد منتجات في هذا القسم حالياً.</td></tr>';
-
+'<tr><td colspan="10">لا توجد منتجات مطابقة للاختيارات الحالية.</td></tr>';
 return;
-
 }
 
 filtered.forEach(item=>{
 
-const tr=document.createElement("tr");
+const tr = document.createElement("tr");
 
-tr.innerHTML=`
+tr.innerHTML = `
 
 <td>${escapeHtml(item.category)}</td>
 
@@ -1292,7 +1340,7 @@ tr.innerHTML=`
 <td>${escapeHtml(item.expDate || "-")}</td>
 
 <td>
-${item.quantity<=2
+${Number(item.quantity)<=2
 ? "<span class='badge-warning'>مخزون منخفض</span>"
 : "سليم"}
 </td>
@@ -1321,107 +1369,91 @@ tbody.appendChild(tr);
 
 
 // ========================================
-// الكاشير: البحث عن الأقسام
+// الكاشير: اختيار القسم من قائمة
 // ========================================
 
-window.filterPosDropdown = function() {
+function updatePosCategorySelect() {
 
-const searchInput = document.getElementById("searchPos");
+const select = document.getElementById("searchPos");
+const previousValue = select.value;
 
-const rawSearch = searchInput?.value || "";
-
-const searchVal = normalizeArabicSearch(rawSearch);
-
-const suggestionsBox =
-document.getElementById("posCategorySuggestions");
-
-const categories = [...new Set(
-
+const categories = [
+...new Set(
 localBatches
-.filter(item => Number(item.quantity) > 0 && item.category)
-.map(item => item.category)
-
-)].sort((a,b) =>
-normalizeArabicSearch(a).localeCompare(
-normalizeArabicSearch(b),"ar"
+.filter(item=>Number(item.quantity)>0 && item.category)
+.map(item=>item.category)
 )
-);
+].sort((a,b)=>a.localeCompare(b,"ar"));
 
-suggestionsBox.innerHTML = "";
+select.innerHTML = '<option value="">-- اختر القسم --</option>';
 
-if(searchVal) {
+categories.forEach(category=>{
 
-const matches = categories.filter(category =>
-normalizeArabicSearch(category).includes(searchVal)
-);
+const option = document.createElement("option");
+option.value = category;
+option.textContent = category;
 
-matches.sort((a,b)=>{
-const aStarts = normalizeArabicSearch(a).startsWith(searchVal);
-const bStarts = normalizeArabicSearch(b).startsWith(searchVal);
-
-if(aStarts && !bStarts) return -1;
-if(!aStarts && bStarts) return 1;
-
-return a.localeCompare(b,"ar");
-});
-
-matches.forEach(category => {
-
-const button = document.createElement("button");
-
-button.type = "button";
-
-button.className = "pos-suggestion-item";
-
-button.setAttribute("role", "option");
-
-button.textContent = category;
-
-button.addEventListener("click", () => {
-
-selectPosCategory(category);
+select.appendChild(option);
 
 });
 
-suggestionsBox.appendChild(button);
-
-});
-
-suggestionsBox.style.display =
-matches.length ? "block" : "none";
-
+if(categories.includes(previousValue)) {
+select.value = previousValue;
 } else {
-
-suggestionsBox.style.display = "none";
-
+selectedPosCategory = "";
+selectedPosCompany = "";
 }
 
-};
+}
 
 
 // اختيار القسم
 
-function selectPosCategory(category) {
+document.getElementById("searchPos")
+.addEventListener("change",function(){
 
-selectedPosCategory = category;
-
+selectedPosCategory = this.value;
 selectedPosCompany = "";
-
-document.getElementById("searchPos").value = category;
-
-document.getElementById("posCategorySuggestions").style.display = "none";
 
 const companySelect =
 document.getElementById("posCompanySelect");
 
+companySelect.innerHTML =
+'<option value="">-- اختر الشركة --</option>';
+
+companySelect.disabled = !selectedPosCategory;
+
+resetPosProductSelection();
+
+updatePosCompanyOptions();
+
+});
+
+
+// تحديث شركات الكاشير
+
+function updatePosCompanyOptions() {
+
+const companySelect =
+document.getElementById("posCompanySelect");
+
+if(!selectedPosCategory) {
+companySelect.innerHTML =
+'<option value="">اختر القسم أولاً</option>';
+companySelect.disabled = true;
+return;
+}
+
+const previousValue = companySelect.value;
+
 const companies = [
 ...new Set(
 localBatches
-.filter(item =>
-Number(item.quantity) > 0 &&
-item.category === category
+.filter(item=>
+Number(item.quantity)>0 &&
+item.category===selectedPosCategory
 )
-.map(item => companyOf(item))
+.map(item=>companyOf(item))
 )
 ].sort((a,b)=>a.localeCompare(b,"ar"));
 
@@ -1431,7 +1463,6 @@ companySelect.innerHTML =
 companies.forEach(company=>{
 
 const option = document.createElement("option");
-
 option.value = company;
 option.textContent = company;
 
@@ -1441,27 +1472,12 @@ companySelect.appendChild(option);
 
 companySelect.disabled = false;
 
-resetPosProductSelection();
-
+if(companies.includes(previousValue)) {
+companySelect.value = previousValue;
+selectedPosCompany = previousValue;
 }
 
-
-// عند تغيير القسم من جديد
-
-document.getElementById("searchPos")
-.addEventListener("input",function(){
-
-selectedPosCategory = "";
-selectedPosCompany = "";
-
-document.getElementById("posCompanySelect").innerHTML =
-'<option value="">اختر القسم أولاً</option>';
-
-document.getElementById("posCompanySelect").disabled = true;
-
-resetPosProductSelection();
-
-});
+}
 
 
 // تغيير الشركة
@@ -1477,8 +1493,6 @@ const productInput =
 document.getElementById("searchPosProduct");
 
 productInput.disabled = !selectedPosCompany;
-
-productInput.value = "";
 
 if(selectedPosCompany) {
 productInput.placeholder = "اكتب اسم المنتج...";
@@ -1498,7 +1512,6 @@ const productInput =
 document.getElementById("searchPosProduct");
 
 productInput.value = "";
-
 productInput.disabled = !selectedPosCompany;
 
 document.getElementById("posProductSuggestions").innerHTML = "";
@@ -1535,7 +1548,6 @@ document.getElementById("sellSelectBatch").innerHTML =
 '<option value="">-- اختر المنتج أولاً --</option>';
 
 calculatePosTotal();
-
 return;
 
 }
@@ -1543,17 +1555,15 @@ return;
 const matchingProducts = localBatches.filter(item=>{
 
 return (
-Number(item.quantity) > 0 &&
-item.category === selectedPosCategory &&
-companyOf(item) === selectedPosCompany &&
+Number(item.quantity)>0 &&
+item.category===selectedPosCategory &&
+companyOf(item)===selectedPosCompany &&
 normalizeArabicSearch(item.name).includes(searchVal)
 );
 
 });
 
-const uniqueNames = [
-...new Set(matchingProducts.map(item=>item.name))
-];
+const uniqueNames = [...new Set(matchingProducts.map(item=>item.name))];
 
 uniqueNames.sort((a,b)=>{
 
@@ -1570,7 +1580,7 @@ return aName.localeCompare(bName,"ar");
 
 });
 
-if(uniqueNames.length === 0) {
+if(uniqueNames.length===0) {
 
 suggestionsBox.innerHTML =
 '<div class="pos-suggestion-item">لا توجد منتجات مطابقة</div>';
@@ -1581,7 +1591,6 @@ document.getElementById("sellSelectBatch").innerHTML =
 '<option value="">لا توجد منتجات مطابقة</option>';
 
 calculatePosTotal();
-
 return;
 
 }
@@ -1591,9 +1600,7 @@ uniqueNames.forEach(name=>{
 const button = document.createElement("button");
 
 button.type = "button";
-
 button.className = "pos-suggestion-item";
-
 button.textContent = name;
 
 button.addEventListener("click",()=>{
@@ -1601,7 +1608,6 @@ button.addEventListener("click",()=>{
 document.getElementById("searchPosProduct").value = name;
 
 suggestionsBox.innerHTML = "";
-
 suggestionsBox.style.display = "none";
 
 fillProductBatches(name);
@@ -1626,11 +1632,10 @@ const select = document.getElementById("sellSelectBatch");
 const batches = localBatches.filter(item=>{
 
 return (
-Number(item.quantity) > 0 &&
-item.category === selectedPosCategory &&
-companyOf(item) === selectedPosCompany &&
-normalizeArabicSearch(item.name) ===
-normalizeArabicSearch(productName)
+Number(item.quantity)>0 &&
+item.category===selectedPosCategory &&
+companyOf(item)===selectedPosCompany &&
+normalizeArabicSearch(item.name)===normalizeArabicSearch(productName)
 );
 
 });
@@ -1638,13 +1643,9 @@ normalizeArabicSearch(productName)
 select.innerHTML =
 '<option value="">-- اختر الدفعة --</option>';
 
-batches.sort((a,b)=>{
-
-return String(a.expDate || "").localeCompare(
-String(b.expDate || "")
+batches.sort((a,b)=>
+String(a.expDate || "").localeCompare(String(b.expDate || ""))
 );
-
-});
 
 batches.forEach(item=>{
 
@@ -1659,54 +1660,12 @@ select.appendChild(option);
 
 });
 
-if(batches.length === 1) {
-
+if(batches.length===1) {
 select.value = batches[0].id;
-
 calculatePosTotal();
-
 }
 
 }
-
-
-// إخفاء الاقتراحات عند الضغط خارجها
-
-document.addEventListener("click",event=>{
-
-const categorySearch = document.getElementById("searchPos");
-
-const categorySuggestions =
-document.getElementById("posCategorySuggestions");
-
-if(
-categorySearch &&
-categorySuggestions &&
-!categorySearch.contains(event.target) &&
-!categorySuggestions.contains(event.target)
-) {
-
-categorySuggestions.style.display = "none";
-
-}
-
-const productSearch = document.getElementById("searchPosProduct");
-
-const productSuggestions =
-document.getElementById("posProductSuggestions");
-
-if(
-productSearch &&
-productSuggestions &&
-!productSearch.contains(event.target) &&
-!productSuggestions.contains(event.target)
-) {
-
-productSuggestions.style.display = "none";
-
-}
-
-});
 
 
 // ========================================
@@ -1715,8 +1674,7 @@ productSuggestions.style.display = "none";
 
 window.calculatePosTotal = function() {
 
-const id =
-document.getElementById("sellSelectBatch").value;
+const id = document.getElementById("sellSelectBatch").value;
 
 const qty =
 parseFloat(document.getElementById("sellQuantity").value) || 0;
@@ -1740,8 +1698,7 @@ document.getElementById("sellForm")
 
 e.preventDefault();
 
-const id =
-document.getElementById("sellSelectBatch").value;
+const id = document.getElementById("sellSelectBatch").value;
 
 const item = localBatches.find(p=>p.id===id);
 
@@ -1757,11 +1714,9 @@ return alert("اكتب كمية أكبر من صفر!");
 }
 
 if(sellQty>Number(item.quantity)+0.001) {
-
 return alert(
 `الكمية المطلوبة (${sellQty}) أكبر من المتاح (${item.quantity})!`
 );
-
 }
 
 const finalSellQty = Math.min(sellQty,Number(item.quantity));
@@ -1799,51 +1754,43 @@ document.getElementById("posTotalDisplay").value="0 ج.م";
 
 resetPosProductSelection();
 
-filterPosDropdown();
+updatePosCompanyOptions();
 
 } catch(err) {
-
 alert("خطأ أثناء البيع: "+err.message);
-
 }
 
 });
 
 
 // ========================================
-// تعديل بيانات الدفعة بالكامل
-// الشركة + الاسم + الأسعار + الكمية
+// تعديل بيانات الدفعة
 // ========================================
 
 window.editBatch = async function(id) {
 
-const item = localBatches.find(p => p.id === id);
+const item = localBatches.find(p=>p.id===id);
 
 if(!item) {
 return alert("لم يتم العثور على المنتج المطلوب.");
 }
 
-
-// تعديل الشركة
-
 const companyInput = prompt(
 "اسم الشركة (اتركه فارغاً لعرض لا شيء):",
-companyOf(item) === "لا شيء" ? "" : companyOf(item)
+companyOf(item)==="لا شيء" ? "" : companyOf(item)
 );
 
-if(companyInput === null) return;
+if(companyInput===null) return;
 
 const newCompany = companyInput.trim() || "لا شيء";
 
-
-// تعديل اسم المنتج
 
 const newNameInput = prompt(
 "اسم المنتج:",
 item.name || ""
 );
 
-if(newNameInput === null) return;
+if(newNameInput===null) return;
 
 const newName = newNameInput.trim();
 
@@ -1852,80 +1799,55 @@ return alert("اسم المنتج لا يمكن أن يكون فارغاً.");
 }
 
 
-// تعديل سعر الشراء
-
 const buyInput = prompt(
 "سعر الشراء الحالي (جنيه):",
 item.buyPrice ?? 0
 );
 
-if(buyInput === null) return;
+if(buyInput===null) return;
 
 const newBuyPrice = Number(buyInput);
 
-if(
-buyInput.trim() === "" ||
-!Number.isFinite(newBuyPrice) ||
-newBuyPrice < 0
-) {
+if(buyInput.trim()==="" || !Number.isFinite(newBuyPrice) || newBuyPrice<0) {
 return alert("سعر الشراء غير صحيح.");
 }
 
-
-// تعديل سعر البيع
 
 const sellInput = prompt(
 "سعر البيع الحالي (جنيه):",
 item.sellPrice ?? 0
 );
 
-if(sellInput === null) return;
+if(sellInput===null) return;
 
 const newSellPrice = Number(sellInput);
 
-if(
-sellInput.trim() === "" ||
-!Number.isFinite(newSellPrice) ||
-newSellPrice < 0
-) {
+if(sellInput.trim()==="" || !Number.isFinite(newSellPrice) || newSellPrice<0) {
 return alert("سعر البيع غير صحيح.");
 }
 
-
-// تعديل الكمية المتبقية
 
 const quantityInput = prompt(
 `الكمية المتبقية حالياً (${item.unit || "وحدة"}):`,
 item.quantity ?? 0
 );
 
-if(quantityInput === null) return;
+if(quantityInput===null) return;
 
 const newQuantity = Number(quantityInput);
 
-if(
-quantityInput.trim() === "" ||
-!Number.isFinite(newQuantity) ||
-newQuantity < 0
-) {
+if(quantityInput.trim()==="" || !Number.isFinite(newQuantity) || newQuantity<0) {
 return alert("الكمية غير صحيحة. يجب أن تكون صفراً أو أكبر.");
 }
-
-
-// حفظ التعديلات في Firebase
 
 try {
 
 await updateDoc(doc(db,"products",id),{
 
 company:newCompany,
-
 name:newName,
-
 buyPrice:newBuyPrice,
-
 sellPrice:newSellPrice,
-
 quantity:Number(newQuantity.toFixed(3))
 
 });
@@ -1933,9 +1855,7 @@ quantity:Number(newQuantity.toFixed(3))
 alert("✅ تم تعديل الشركة واسم المنتج والأسعار والكمية بنجاح.");
 
 } catch(err) {
-
-alert("تعذر تعديل المنتج: " + err.message);
-
+alert("تعذر تعديل المنتج: "+err.message);
 }
 
 };
@@ -1954,9 +1874,7 @@ await deleteDoc(doc(db,"products",id));
 alert("تم حذف الدفعة بنجاح.");
 
 } catch(err) {
-
 alert("حدث خطأ أثناء الحذف: "+err.message);
-
 }
 
 }
@@ -1966,33 +1884,68 @@ alert("حدث خطأ أثناء الحذف: "+err.message);
 
 // ========================================
 // تنبيهات الصلاحية
+// تبدأ من شهر قبل الانتهاء
 // ========================================
 
 function renderExpiringProducts() {
 
-const tbody =
-document.getElementById("expiringBody");
+const tbody = document.getElementById("expiringBody");
+const notice = document.getElementById("expiringNotice");
+const tabButton = document.getElementById("expiringTabButton");
 
-tbody.innerHTML="";
+tbody.innerHTML = "";
 
 const today = new Date();
-
 today.setHours(0,0,0,0);
+
+// آخر يوم في فترة التنبيه: بعد شهر من اليوم
+
+const oneMonthLater = new Date(today);
+oneMonthLater.setMonth(oneMonthLater.getMonth()+1);
 
 const criticalItems = localBatches.filter(item=>{
 
-if(!item.expDate || item.quantity<=0) return false;
+if(!item.expDate || Number(item.quantity)<=0) return false;
 
 const expDate = new Date(item.expDate+"T00:00:00");
 
 if(isNaN(expDate.getTime())) return false;
 
-const diffDays =
-Math.ceil((expDate-today)/(1000*60*60*24));
+// يظهر المنتج لو انتهت صلاحيته أو باقي شهر أو أقل
 
-return diffDays<=14;
+return expDate<=oneMonthLater;
 
 });
+
+const expiredCount = criticalItems.filter(item=>{
+return new Date(item.expDate+"T00:00:00")<=today;
+}).length;
+
+
+// تحديث إشعار الصفحة وزر التنبيهات
+
+if(criticalItems.length>0) {
+
+notice.style.display = "block";
+
+notice.classList.toggle("has-expired",expiredCount>0);
+
+notice.textContent =
+`⚠️ يوجد ${criticalItems.length} منتج يحتاج إلى متابعة الصلاحية.` +
+(expiredCount>0 ? ` منها ${expiredCount} منتج منتهي الصلاحية.` : "");
+
+tabButton.innerHTML =
+`⚠️ تنبيهات الصلاحية <span class="tab-count">${criticalItems.length}</span>`;
+
+} else {
+
+notice.style.display = "none";
+notice.classList.remove("has-expired");
+
+tabButton.textContent = "⚠️ تنبيهات الصلاحية";
+
+}
+
 
 if(criticalItems.length===0) {
 
@@ -2003,22 +1956,43 @@ return;
 
 }
 
+
+// ترتيب المنتجات حسب الأقرب لانتهاء الصلاحية
+
+criticalItems.sort((a,b)=>
+String(a.expDate).localeCompare(String(b.expDate))
+);
+
 criticalItems.forEach(item=>{
 
-const expDate =
-new Date(item.expDate+"T00:00:00");
+const expDate = new Date(item.expDate+"T00:00:00");
 
-const diffDays =
-Math.ceil((expDate-today)/(1000*60*60*24));
+const diffDays = Math.ceil(
+(expDate-today)/(1000*60*60*24)
+);
 
-let badge =
-diffDays<=0
-? "<span class='badge-danger'>منتهي الصلاحية!</span>"
-: `<span class='badge-danger'>ينتهي خلال ${diffDays} يوم</span>`;
+let badge;
 
-const tr=document.createElement("tr");
+if(diffDays<0) {
 
-tr.innerHTML=`
+badge =
+`<span class="badge-danger">منتهي منذ ${Math.abs(diffDays)} يوم</span>`;
+
+} else if(diffDays===0) {
+
+badge =
+'<span class="badge-danger">ينتهي اليوم</span>';
+
+} else {
+
+badge =
+`<span class="badge-warning">ينتهي خلال ${diffDays} يوم</span>`;
+
+}
+
+const tr = document.createElement("tr");
+
+tr.innerHTML = `
 
 <td>${escapeHtml(item.category)}</td>
 
@@ -2047,39 +2021,27 @@ tbody.appendChild(tr);
 
 function updateReports() {
 
-
-// رأس المال
-
-let totalCap=0;
+let totalCap = 0;
 
 localBatches.forEach(item=>{
-
-totalCap +=
-Number(item.quantity)*Number(item.buyPrice);
-
+totalCap += Number(item.quantity)*Number(item.buyPrice);
 });
 
 document.getElementById("totalCapital").textContent =
 totalCap.toFixed(2)+" ج.م";
 
 
-// الشهر المختار
-
 const selectedMonth =
 document.getElementById("reportMonth").value ||
 new Date().toISOString().slice(0,7);
 
-const [year,month] =
-selectedMonth.split("-").map(Number);
+const [year,month] = selectedMonth.split("-").map(Number);
 
-
-// تجميع بيانات الشهور
-
-const monthlyData={};
+const monthlyData = {};
 
 allSales.forEach(sale=>{
 
-const d=sale.soldAtDate;
+const d = sale.soldAtDate;
 
 if(!d || isNaN(d.getTime())) return;
 
@@ -2087,56 +2049,41 @@ const key =
 `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
 
 if(!monthlyData[key]) {
-
-monthlyData[key]={
+monthlyData[key] = {
 salesProfit:0,
 expenses:0
 };
-
 }
 
-const amount=Number(sale.profit)||0;
+const amount = Number(sale.profit)||0;
 
 if(sale.category==="مصروفات") {
-
 monthlyData[key].expenses += Math.abs(amount);
-
 } else {
-
 monthlyData[key].salesProfit += amount;
-
 }
 
 });
 
 
-// إضافة الشهر المختار حتى لو لم توجد فيه حركات
-
 if(!monthlyData[selectedMonth]) {
-
-monthlyData[selectedMonth]={
+monthlyData[selectedMonth] = {
 salesProfit:0,
 expenses:0
 };
-
 }
 
-
-// حساب صافي الربح
-
-const selectedData=monthlyData[selectedMonth];
+const selectedData = monthlyData[selectedMonth];
 
 const monthProfit =
 selectedData.salesProfit-selectedData.expenses;
 
 
-// متوسط الربح اليومي
-
-const activeDays=new Set();
+const activeDays = new Set();
 
 allSales.forEach(sale=>{
 
-const d=sale.soldAtDate;
+const d = sale.soldAtDate;
 
 if(
 d &&
@@ -2154,9 +2101,7 @@ activeDays.add(
 });
 
 const avgDaily =
-activeDays.size
-? monthProfit/activeDays.size
-: 0;
+activeDays.size ? monthProfit/activeDays.size : 0;
 
 
 document.getElementById("novProfit").textContent =
@@ -2166,15 +2111,14 @@ document.getElementById("avgDailyProfit").textContent =
 avgDaily.toFixed(2)+" ج.م / يوم";
 
 
-// جدول كل الشهور
+// جدول الشهور
 
 const monthlyBody =
 document.getElementById("monthlyProfitsBody");
 
-monthlyBody.innerHTML="";
+monthlyBody.innerHTML = "";
 
-const months =
-Object.keys(monthlyData).sort().reverse();
+const months = Object.keys(monthlyData).sort().reverse();
 
 if(months.length===0) {
 
@@ -2185,14 +2129,13 @@ monthlyBody.innerHTML =
 
 months.forEach(key=>{
 
-const data=monthlyData[key];
+const data = monthlyData[key];
 
-const netProfit =
-data.salesProfit-data.expenses;
+const netProfit = data.salesProfit-data.expenses;
 
-const tr=document.createElement("tr");
+const tr = document.createElement("tr");
 
-tr.innerHTML=`
+tr.innerHTML = `
 
 <td>
 <strong>${escapeHtml(key)}</strong>
@@ -2226,7 +2169,7 @@ monthlyBody.appendChild(tr);
 
 // تقارير الأقسام
 
-const categories=[...new Set([
+const categories = [...new Set([
 
 ...localBatches.map(p=>p.category),
 
@@ -2237,10 +2180,9 @@ const categories=[...new Set([
 ].filter(Boolean))];
 
 
-const tbody =
-document.getElementById("categoryReportsBody");
+const tbody = document.getElementById("categoryReportsBody");
 
-tbody.innerHTML="";
+tbody.innerHTML = "";
 
 if(categories.length===0) {
 
@@ -2277,9 +2219,9 @@ s.soldAtDate.getMonth()===month-1
 );
 
 
-const tr=document.createElement("tr");
+const tr = document.createElement("tr");
 
-tr.innerHTML=`
+tr.innerHTML = `
 
 <td><strong>${escapeHtml(cat)}</strong></td>
 
@@ -2321,7 +2263,6 @@ if(!confirm(
 if(prompt("للتأكيد اكتب كلمة: البركة")!=="البركة") {
 
 alert("لم يتم التصفير؛ كلمة التأكيد غير مطابقة.");
-
 return;
 
 }
