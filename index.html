@@ -148,6 +148,11 @@ input:focus,select:focus {
   border-color:var(--primary);
 }
 
+input:disabled,select:disabled {
+  background:#eee;
+  cursor:not-allowed;
+}
+
 button.btn-main {
   grid-column:1/-1;
   padding:14px;
@@ -174,6 +179,10 @@ button.btn-sell {
   font-weight:bold;
   cursor:pointer;
   margin:3px;
+}
+
+.btn-edit:hover {
+  background:#084298;
 }
 
 .btn-delete {
@@ -266,8 +275,28 @@ small {
   font:inherit;
 }
 
-.pos-suggestion-item:hover {
+.pos-suggestion-item:hover,
+.pos-suggestion-item:focus {
   background:#eaf2ff;
+  outline:none;
+}
+
+.pos-step {
+  background:#f8fafc;
+  padding:12px;
+  border-radius:8px;
+  border:1px solid #e2e8f0;
+  margin-bottom:12px;
+}
+
+.pos-step label {
+  color:var(--primary);
+}
+
+.pos-help {
+  color:#666;
+  font-size:12px;
+  margin-top:5px;
 }
 
 @media(max-width:600px) {
@@ -300,7 +329,7 @@ small {
 <h1>❄️ نظام البركة للمجمدات</h1>
 </header>
 
-<div class="nav-tabs">
+<div class="nav-tabs" id="navTabsContainer">
 
 <button class="tab-btn active"
 onclick="switchTab('add-product',this)">➕ إضافة منتج</button>
@@ -349,13 +378,10 @@ onclick="switchTab('reports',this)">📊 الأرباح والتقارير</butt
 placeholder="اكتب اسم القسم الجديد">
 </div>
 
-<!-- خانة الشركة الجديدة -->
-
 <div class="form-group">
 <label>اسم الشركة</label>
 <input type="text" id="company"
 placeholder="اكتب اسم الشركة">
-<small>اتركها فارغة إذا لم توجد شركة.</small>
 </div>
 
 <div class="form-group">
@@ -385,7 +411,8 @@ id="productQuantity" required min="0.001">
 
 <div class="form-group">
 <label>مدة الصلاحية بالأشهر</label>
-<input type="number" id="shelfMonths" required min="1">
+<input type="number" id="shelfMonths"
+required min="1">
 </div>
 
 <div class="form-group">
@@ -427,9 +454,7 @@ onchange="renderFilteredInventory()">
 </div>
 
 <div class="table-responsive">
-
 <table>
-
 <thead>
 <tr>
 <th>القسم</th>
@@ -448,10 +473,9 @@ onchange="renderFilteredInventory()">
 <tbody id="allInventoryBody">
 <tr><td colspan="10">جاري التحميل...</td></tr>
 </tbody>
-
 </table>
-
 </div>
+
 </div>
 </div>
 
@@ -464,29 +488,46 @@ onchange="renderFilteredInventory()">
 
 <h3>🛒 الكاشير السريع</h3>
 
-<div class="form-grid">
+<!-- الخطوة الأولى: القسم -->
 
-<div class="form-group">
+<div class="form-group pos-step">
 
-<label>1- اختر القسم</label>
+<label>1- ابحث باسم القسم</label>
 
-<select id="posCategorySelect">
-<option value="">-- اختر القسم --</option>
-</select>
+<input type="text"
+id="searchPos"
+autocomplete="off"
+placeholder="ابدأ بكتابة اسم القسم مثل: اس..."
+oninput="filterPosDropdown()"
+onfocus="filterPosDropdown()"
+aria-label="ابحث باسم القسم">
+
+<div id="posCategorySuggestions"
+class="pos-suggestions"
+role="listbox"
+aria-label="اقتراحات الأقسام"></div>
+
+<div class="pos-help">اختر القسم الذي يوجد به المنتج.</div>
 
 </div>
 
-<div class="form-group">
+<!-- الخطوة الثانية: الشركة -->
+
+<div class="form-group pos-step">
 
 <label>2- اختر الشركة</label>
 
 <select id="posCompanySelect" disabled>
-<option value="">-- اختر الشركة --</option>
+<option value="">اختر القسم أولاً</option>
 </select>
+
+<div class="pos-help">ستظهر الشركات الموجودة داخل القسم المختار فقط.</div>
 
 </div>
 
-<div class="form-group">
+<!-- الخطوة الثالثة: البحث عن المنتج -->
+
+<div class="form-group pos-step">
 
 <label>3- اكتب اسم المنتج</label>
 
@@ -494,36 +535,31 @@ onchange="renderFilteredInventory()">
 id="searchPosProduct"
 autocomplete="off"
 disabled
-placeholder="اكتب اسم المنتج للبحث...">
+placeholder="اختر القسم والشركة أولاً">
 
 <div id="posProductSuggestions"
-class="pos-suggestions">
-</div>
+class="pos-suggestions"></div>
+
+<div class="pos-help">ستظهر اقتراحات المنتجات التابعة للشركة والقسم المختارين فقط.</div>
 
 </div>
 
-</div>
 
 <form id="sellForm" class="form-grid">
 
 <div class="form-group" style="grid-column:1/-1">
 
-<label>4- اختر الدفعة المطلوبة</label>
+<label>4- اختر الدفعة وتاريخ الصلاحية</label>
 
 <select id="sellSelectBatch"
-required disabled
-onchange="calculatePosTotal()">
-
+required onchange="calculatePosTotal()">
 <option value="">-- اختر المنتج أولاً --</option>
-
 </select>
 
 </div>
 
 <div class="form-group">
-
 <label>الكمية المباعة</label>
-
 <input type="number"
 step="0.001"
 id="sellQuantity"
@@ -531,19 +567,15 @@ required
 value="0"
 min="0"
 oninput="calculatePosTotal()">
-
 </div>
 
 <div class="form-group">
-
 <label>إجمالي المطلوب (ج.م)</label>
-
 <input type="text"
 id="posTotalDisplay"
 readonly
 value="0 ج.م"
 style="background:#e9ecef;font-weight:bold;color:green">
-
 </div>
 
 <button type="submit" class="btn-main btn-sell">
@@ -551,7 +583,6 @@ style="background:#e9ecef;font-weight:bold;color:green">
 </button>
 
 </form>
-
 </div>
 </div>
 
@@ -565,9 +596,7 @@ style="background:#e9ecef;font-weight:bold;color:green">
 <h3>⚠️ المنتجات القريبة من انتهاء الصلاحية</h3>
 
 <div class="table-responsive">
-
 <table>
-
 <thead>
 <tr>
 <th>القسم</th>
@@ -582,10 +611,9 @@ style="background:#e9ecef;font-weight:bold;color:green">
 <tbody id="expiringBody">
 <tr><td colspan="6">جاري الفحص...</td></tr>
 </tbody>
-
 </table>
-
 </div>
+
 </div>
 </div>
 
@@ -620,13 +648,15 @@ style="background:#e9ecef;font-weight:bold;color:green">
 </div>
 </div>
 
+
+<!-- سجل أرباح جميع الشهور -->
+
 <div class="card">
 
 <h3>📊 سجل أرباح جميع الشهور</h3>
 
 <div class="table-responsive">
 <table>
-
 <thead>
 <tr>
 <th>الشهر</th>
@@ -639,11 +669,13 @@ style="background:#e9ecef;font-weight:bold;color:green">
 <tbody id="monthlyProfitsBody">
 <tr><td colspan="4">جاري تحميل التقارير...</td></tr>
 </tbody>
-
 </table>
 </div>
 
 </div>
+
+
+<!-- المصروفات -->
 
 <div class="card" style="border-top:4px solid var(--danger)">
 
@@ -675,14 +707,15 @@ placeholder="مثال: فاتورة كهرباء">
 </form>
 </div>
 
+
+<!-- أرباح الأقسام -->
+
 <div class="card">
 
 <h3>📊 الأرباح ورأس المال بالأقسام</h3>
 
 <div class="table-responsive">
-
 <table>
-
 <thead>
 <tr>
 <th>القسم</th>
@@ -692,11 +725,13 @@ placeholder="مثال: فاتورة كهرباء">
 </thead>
 
 <tbody id="categoryReportsBody"></tbody>
-
 </table>
+</div>
 
 </div>
-</div>
+
+
+<!-- تصفير البيانات -->
 
 <div class="card" style="border:2px solid var(--danger)">
 
@@ -718,1176 +753,1611 @@ onclick="resetAllData()">
 
 </div>
 
-<!-- الجزء الثاني يبدأ هنا مباشرة -->
- <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 
 import {
-    getFirestore,
-    collection,
-    addDoc,
-    onSnapshot,
-    deleteDoc,
-    doc,
-    updateDoc
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+getFirestore,
+collection,
+addDoc,
+onSnapshot,
+deleteDoc,
+doc,
+updateDoc
+}
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
 
-/* =========================
-   Firebase
-========================= */
+// إعداد Firebase
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDd1u5PvoSgxc_RPh5eIerP_4WBOMsMtAk",
-    authDomain: "makhzn-944f7.firebaseapp.com",
-    projectId: "makhzn-944f7",
-    storageBucket: "makhzn-944f7.firebasestorage.app",
-    messagingSenderId: "809029795722",
-    appId: "1:809029795722:web:30cbe4fc29d3e8d6a35273",
-    measurementId: "G-HQC0NCMEJP"
+apiKey:"AIzaSyDd1u5PvoSgxc_RPh5eIerP_4WBOMsMtAk",
+authDomain:"makhzn-944f7.firebaseapp.com",
+projectId:"makhzn-944f7",
+storageBucket:"makhzn-944f7.firebasestorage.app",
+messagingSenderId:"809029795722",
+appId:"1:809029795722:web:30cbe4fc29d3e8d6a35273",
+measurementId:"G-HQC0NCMEJP"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-const productsRef = collection(db, "products");
-const salesRef = collection(db, "sales");
+const productsRef = collection(db,"products");
+const salesRef = collection(db,"sales");
 
 let localBatches = [];
 let allSales = [];
 
+let selectedPosCategory = "";
+let selectedPosCompany = "";
 
-/* =========================
-   أدوات مساعدة
-========================= */
 
-function $(id) {
-    return document.getElementById(id);
-}
+// حماية النصوص عند عرضها داخل HTML
 
 function escapeHtml(value) {
-    return String(value ?? "").replace(/[&<>"']/g, char => ({
-        "&": "&amp;",
-        "<": "&lt;",
-        ">": "&gt;",
-        '"': "&quot;",
-        "'": "&#039;"
-    })[char]);
+
+return String(value ?? "").replace(/[&<>"']/g, char => ({
+"&":"&amp;",
+"<":"&lt;",
+">":"&gt;",
+'"':"&quot;",
+"'":"&#039;"
+})[char]);
+
 }
+
+
+// الشركة للمنتجات القديمة
 
 function companyOf(item) {
-    return String(item.company || "").trim() || "لا شيء";
+
+return String(item.company || "").trim() || "لا شيء";
+
 }
+
+
+// توحيد الحروف العربية في البحث
 
 function normalizeArabicSearch(value) {
-    return String(value || "")
-        .toLowerCase()
-        .trim()
-        .replace(/[\u064B-\u065F\u0670]/g, "")
-        .replace(/[أإآٱ]/g, "ا")
-        .replace(/ة/g, "ه")
-        .replace(/ى/g, "ي")
-        .replace(/ؤ/g, "و")
-        .replace(/ئ/g, "ي")
-        .replace(/ـ/g, "")
-        .replace(/\s+/g, " ");
-}
 
-function getToday() {
-    return new Date().toISOString().split("T")[0];
-}
+return String(value || "")
+.normalize("NFD")
+.replace(/[\u064B-\u065F\u0670]/g,"")
+.replace(/[أإآٱ]/g,"ا")
+.replace(/ة/g,"ه")
+.replace(/ى/g,"ي")
+.replace(/ؤ/g,"و")
+.replace(/ئ/g,"ي")
+.replace(/ـ/g,"")
+.toLowerCase()
+.trim()
+.replace(/\s+/g," ");
 
-function formatDate(date) {
-    if (!date) return "-";
-
-    if (date.toDate) {
-        date = date.toDate();
-    } else {
-        date = new Date(date);
-    }
-
-    if (isNaN(date.getTime())) return "-";
-
-    return date.toLocaleDateString("ar-EG");
-}
-
-function formatMoney(value) {
-    return Number(value || 0).toLocaleString("ar-EG", {
-        maximumFractionDigits: 2
-    }) + " ج.م";
-}
-
-function showMessage(message) {
-    alert(message);
-}
-
-function getDefaultCategories() {
-    return [
-        "لحوم وكبدة",
-        "أسماك ورنجة",
-        "توابل",
-        "بيض",
-        "مصنعات وبطاطس"
-    ];
-}
-
-function getAllCategories() {
-    const categories = new Set(getDefaultCategories());
-
-    localBatches.forEach(item => {
-        if (item.category) {
-            categories.add(item.category);
-        }
-    });
-
-    return [...categories].sort((a, b) => a.localeCompare(b, "ar"));
 }
 
 
-/* =========================
-   الأقسام ووحدات القياس
-========================= */
+// التنقل بين الصفحات
 
-function onCategoryChange() {
-    const category = $("category")?.value;
-    const unitSelect = $("unit");
+window.switchTab = function(tabId,btnElement) {
 
-    if (!unitSelect) return;
+document.querySelectorAll(".section-content")
+.forEach(el=>el.classList.remove("active"));
 
-    const units = {
-        "لحوم وكبدة": ["كيلو"],
-        "أسماك ورنجة": ["كيلو"],
-        "توابل": ["عبوة", "كيس", "علبة"],
-        "بيض": ["طبق", "كرتونة", "بيضة"],
-        "مصنعات وبطاطس": ["كيلو", "كيس", "قطعة", "عبوة"]
-    };
+document.querySelectorAll(".tab-btn")
+.forEach(el=>el.classList.remove("active"));
 
-    let selectedUnits = units[category] || ["قطعة", "عبوة", "كيس"];
+const target = document.getElementById(tabId);
 
-    unitSelect.innerHTML = selectedUnits
-        .map(unit => `<option value="${escapeHtml(unit)}">${escapeHtml(unit)}</option>`)
-        .join("");
+if(target) target.classList.add("active");
 
-    const customCategoryBox = $("newCategoryBox");
+if(btnElement) btnElement.classList.add("active");
 
-    if (customCategoryBox) {
-        customCategoryBox.style.display =
-            category === "__NEW__" ? "block" : "none";
-    }
-}
-
-window.onCategoryChange = onCategoryChange;
-
-
-/* =========================
-   تحديث قوائم الأقسام
-========================= */
-
-function updateCategorySelects() {
-    const categories = getAllCategories();
-
-    const addCategory = $("category");
-
-    if (addCategory) {
-        const previousValue = addCategory.value;
-
-        addCategory.innerHTML = `
-            <option value="">اختر القسم</option>
-            ${categories.map(category =>
-                `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`
-            ).join("")}
-            <option value="__NEW__">+ إضافة قسم جديد</option>
-        `;
-
-        if ([...categories, "__NEW__"].includes(previousValue)) {
-            addCategory.value = previousValue;
-        }
-    }
-
-    const filter = $("filterCategory");
-
-    if (filter) {
-        const previousFilter = filter.value;
-
-        filter.innerHTML = `
-            <option value="">كل الأقسام</option>
-            ${categories.map(category =>
-                `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`
-            ).join("")}
-        `;
-
-        if ([...categories].includes(previousFilter)) {
-            filter.value = previousFilter;
-        }
-    }
-}
-
-
-/* =========================
-   إضافة منتج
-========================= */
-
-const addProductForm = $("addProductForm");
-
-if (addProductForm) {
-    addProductForm.addEventListener("submit", async function(event) {
-        event.preventDefault();
-
-        try {
-            let category = $("category").value;
-
-            if (category === "__NEW__") {
-                category = $("newCategory")?.value.trim() || "";
-            }
-
-            const company = $("company")?.value.trim() || "لا شيء";
-            const name = $("name").value.trim();
-
-            const quantity = Number($("quantity").value);
-            const buyPrice = Number($("buyPrice").value);
-            const sellPrice = Number($("sellPrice").value);
-
-            const unit = $("unit").value;
-            const prodDate = $("prodDate").value;
-            const expDate = $("expDate").value;
-
-            if (!category || !name) {
-                showMessage("من فضلك أدخل القسم واسم المنتج.");
-                return;
-            }
-
-            if (
-                !Number.isFinite(quantity) ||
-                !Number.isFinite(buyPrice) ||
-                !Number.isFinite(sellPrice) ||
-                quantity <= 0 ||
-                buyPrice < 0 ||
-                sellPrice < 0
-            ) {
-                showMessage("راجع الكمية والأسعار.");
-                return;
-            }
-
-            if (expDate && prodDate && expDate < prodDate) {
-                showMessage("تاريخ الانتهاء لا يمكن أن يكون قبل تاريخ الإنتاج.");
-                return;
-            }
-
-            await addDoc(productsRef, {
-                category,
-                company,
-                name,
-                quantity,
-                unit,
-                prodDate,
-                expDate,
-                buyPrice,
-                sellPrice,
-                createdAt: new Date()
-            });
-
-            addProductForm.reset();
-
-            if ($("company")) $("company").value = "";
-
-            onCategoryChange();
-
-            showMessage("تم إضافة المنتج بنجاح.");
-
-        } catch (error) {
-            console.error(error);
-            showMessage("حدث خطأ أثناء إضافة المنتج.");
-        }
-    });
-}
-
-
-/* =========================
-   استقبال المنتجات من Firebase
-========================= */
-
-onSnapshot(productsRef, snapshot => {
-    localBatches = snapshot.docs.map(item => ({
-        id: item.id,
-        ...item.data()
-    }));
-
-    updateCategorySelects();
-    updateAutocompleteLists();
-    renderFilteredInventory();
-    renderPosCategories();
-    renderExpiringProducts();
-    updateReports();
-
-}, error => {
-    console.error(error);
-    showMessage("تعذر تحميل المنتجات.");
-});
-
-
-/* =========================
-   استقبال المبيعات
-========================= */
-
-onSnapshot(salesRef, snapshot => {
-    allSales = snapshot.docs.map(item => {
-        const data = item.data();
-
-        return {
-            id: item.id,
-            ...data,
-            soldAtDate: data.soldAt?.toDate
-                ? data.soldAt.toDate()
-                : new Date(data.soldAt || Date.now())
-        };
-    });
-
-    updateReports();
-
-}, error => {
-    console.error(error);
-});
-
-
-/* =========================
-   المخزون
-========================= */
-
-function renderFilteredInventory() {
-    const tableBody = $("inventoryTableBody");
-
-    if (!tableBody) return;
-
-    const search = normalizeArabicSearch(
-        $("inventorySearch")?.value || ""
-    );
-
-    const categoryFilter = $("filterCategory")?.value || "";
-
-    const filtered = localBatches.filter(item => {
-        const matchesSearch =
-            normalizeArabicSearch(item.name).includes(search) ||
-            normalizeArabicSearch(companyOf(item)).includes(search);
-
-        const matchesCategory =
-            !categoryFilter || item.category === categoryFilter;
-
-        return matchesSearch && matchesCategory;
-    });
-
-    if (!filtered.length) {
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="10">لا توجد منتجات مطابقة.</td>
-            </tr>
-        `;
-        return;
-    }
-
-    tableBody.innerHTML = filtered.map(item => {
-        const expired = item.expDate && item.expDate < getToday();
-
-        return `
-            <tr>
-                <td>${escapeHtml(item.category)}</td>
-                <td>${escapeHtml(companyOf(item))}</td>
-                <td>${escapeHtml(item.name)}</td>
-                <td>${Number(item.quantity || 0).toLocaleString("ar-EG")}</td>
-                <td>${escapeHtml(item.unit || "-")}</td>
-                <td>${formatMoney(item.buyPrice)}</td>
-                <td>${formatMoney(item.sellPrice)}</td>
-                <td>${escapeHtml(item.prodDate || "-")}</td>
-                <td>${escapeHtml(item.expDate || "-")}</td>
-                <td>
-                    ${expired ? "منتهي الصلاحية" : "سليم"}
-                </td>
-                <td>
-                    <button onclick="editBatch('${item.id}')">تعديل</button>
-                    <button onclick="deleteBatch('${item.id}')">حذف</button>
-                </td>
-            </tr>
-        `;
-    }).join("");
-}
-
-window.renderFilteredInventory = renderFilteredInventory;
-
-if ($("inventorySearch")) {
-    $("inventorySearch").addEventListener("input", renderFilteredInventory);
-}
-
-if ($("filterCategory")) {
-    $("filterCategory").addEventListener("change", renderFilteredInventory);
-}
-
-
-/* =========================
-   تعديل المنتج والشركة
-========================= */
-
-window.editBatch = async function(id) {
-    const item = localBatches.find(product => product.id === id);
-
-    if (!item) {
-        showMessage("المنتج غير موجود.");
-        return;
-    }
-
-    const company = prompt(
-        "اسم الشركة:",
-        companyOf(item) === "لا شيء" ? "" : companyOf(item)
-    );
-
-    if (company === null) return;
-
-    const name = prompt("اسم المنتج:", item.name || "");
-    if (name === null) return;
-
-    const buyPrice = prompt("سعر الشراء:", item.buyPrice ?? 0);
-    if (buyPrice === null) return;
-
-    const sellPrice = prompt("سعر البيع:", item.sellPrice ?? 0);
-    if (sellPrice === null) return;
-
-    const quantity = prompt("الكمية:", item.quantity ?? 0);
-    if (quantity === null) return;
-
-    const parsedBuy = Number(buyPrice);
-    const parsedSell = Number(sellPrice);
-    const parsedQuantity = Number(quantity);
-
-    if (
-        !name.trim() ||
-        !Number.isFinite(parsedBuy) ||
-        !Number.isFinite(parsedSell) ||
-        !Number.isFinite(parsedQuantity) ||
-        parsedBuy < 0 ||
-        parsedSell < 0 ||
-        parsedQuantity < 0
-    ) {
-        showMessage("البيانات المدخلة غير صحيحة.");
-        return;
-    }
-
-    try {
-        await updateDoc(doc(db, "products", id), {
-            company: company.trim() || "لا شيء",
-            name: name.trim(),
-            buyPrice: parsedBuy,
-            sellPrice: parsedSell,
-            quantity: parsedQuantity
-        });
-
-        showMessage("تم تعديل بيانات المنتج بنجاح.");
-
-    } catch (error) {
-        console.error(error);
-        showMessage("حدث خطأ أثناء التعديل.");
-    }
 };
 
 
-/* =========================
-   حذف المنتج
-========================= */
+// وحدات القياس حسب القسم
 
-window.deleteBatch = async function(id) {
-    if (!confirm("هل أنت متأكد من حذف هذا المنتج؟")) return;
+const categoryUnits = {
 
-    try {
-        await deleteDoc(doc(db, "products", id));
-        showMessage("تم حذف المنتج.");
+"لحوم وكبدة":["كيلو"],
 
-    } catch (error) {
-        console.error(error);
-        showMessage("تعذر حذف المنتج.");
-    }
+"أسماك ورنجة":["كيلو"],
+
+"توابل":["عبوة","كيس","علبة"],
+
+"بيض":["طبق","كرتونة","بيضة"],
+
+"مصنعات وبطاطس":["كيلو","كيس","قطعة","عبوة"]
+
 };
 
 
-/* =========================
-   الكاشير: اختيار القسم
-========================= */
+function getUnitsForCategory(category) {
 
-function renderPosCategories() {
-    const categorySelect = $("posCategorySelect");
+return categoryUnits[category] || ["قطعة","عبوة","كيس"];
 
-    if (!categorySelect) return;
-
-    const categories = [
-        ...new Set(
-            localBatches
-                .filter(item => Number(item.quantity) > 0)
-                .map(item => item.category)
-                .filter(Boolean)
-        )
-    ];
-
-    const previous = categorySelect.value;
-
-    categorySelect.innerHTML = `
-        <option value="">اختر القسم</option>
-        ${categories.map(category =>
-            `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`
-        ).join("")}
-    `;
-
-    if (categories.includes(previous)) {
-        categorySelect.value = previous;
-    }
-
-    updatePosCompanies();
-}
-
-window.renderPosCategories = renderPosCategories;
-
-
-/* =========================
-   الكاشير: اختيار الشركة
-========================= */
-
-function updatePosCompanies() {
-    const category = $("posCategorySelect")?.value || "";
-    const companySelect = $("posCompanySelect");
-
-    if (!companySelect) return;
-
-    const companies = [
-        ...new Set(
-            localBatches
-                .filter(item =>
-                    Number(item.quantity) > 0 &&
-                    item.category === category
-                )
-                .map(companyOf)
-        )
-    ].sort((a, b) => a.localeCompare(b, "ar"));
-
-    companySelect.innerHTML = `
-        <option value="">اختر الشركة</option>
-        ${companies.map(company =>
-            `<option value="${escapeHtml(company)}">${escapeHtml(company)}</option>`
-        ).join("")}
-    `;
-
-    if ($("searchPosProduct")) {
-        $("searchPosProduct").value = "";
-        $("searchPosProduct").disabled = true;
-    }
-
-    if ($("posProductSuggestions")) {
-        $("posProductSuggestions").innerHTML = "";
-    }
-
-    if ($("sellSelectBatch")) {
-        $("sellSelectBatch").innerHTML =
-            `<option value="">اختر المنتج أولاً</option>`;
-    }
-}
-
-if ($("posCategorySelect")) {
-    $("posCategorySelect").addEventListener("change", updatePosCompanies);
-}
-
-if ($("posCompanySelect")) {
-    $("posCompanySelect").addEventListener("change", function() {
-        const input = $("searchPosProduct");
-
-        if (input) {
-            input.disabled = !this.value;
-            input.value = "";
-            if (this.value) input.focus();
-        }
-
-        if ($("posProductSuggestions")) {
-            $("posProductSuggestions").innerHTML = "";
-        }
-
-        if ($("sellSelectBatch")) {
-            $("sellSelectBatch").innerHTML =
-                `<option value="">اختر المنتج</option>`;
-        }
-    });
 }
 
 
-/* =========================
-   اقتراحات المنتجات
-========================= */
+// تحديث وحدات القياس
+
+function refreshProductUnits(preferredUnit="") {
+
+const category = document.getElementById("category").value;
+
+const unitSelect = document.getElementById("productUnit");
+
+const units = getUnitsForCategory(category);
+
+unitSelect.innerHTML = "";
+
+units.forEach(unit=>{
+
+const option = document.createElement("option");
+
+option.value = unit;
+option.textContent = unit;
+
+unitSelect.appendChild(option);
+
+});
+
+if(preferredUnit && units.includes(preferredUnit)) {
+unitSelect.value = preferredUnit;
+}
+
+document.getElementById("unitHelp").textContent =
+"الوحدات المتاحة: " + units.join(" / ");
+
+document.getElementById("newCategoryGroup").style.display =
+category === "__NEW__" ? "flex" : "none";
+
+}
+
+
+window.onCategoryChange = function() {
+refreshProductUnits();
+};
+
+
+// تاريخ الشهر الحالي
+
+const now = new Date();
+
+document.getElementById("reportMonth").value =
+`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
+
+
+// تحديث اقتراحات أسماء المنتجات
 
 function updateAutocompleteLists() {
-    const input = $("searchPosProduct");
 
-    if (!input) return;
+const namesList = document.getElementById("productNameSuggestions");
 
-    if (input.dataset.listenerAdded === "true") return;
+const names = [
+...new Set(localBatches.map(p=>p.name).filter(Boolean))
+].sort();
 
-    input.dataset.listenerAdded = "true";
+namesList.innerHTML = "";
 
-    input.addEventListener("input", function() {
-        const search = normalizeArabicSearch(this.value);
+names.forEach(name => {
 
-        const category = $("posCategorySelect")?.value || "";
-        const company = $("posCompanySelect")?.value || "";
+const option = document.createElement("option");
 
-        const suggestions = $("posProductSuggestions");
+option.value = name;
 
-        if (!suggestions) return;
+namesList.appendChild(option);
 
-        if (!category || !company || !search) {
-            suggestions.innerHTML = "";
-            return;
-        }
+});
 
-        const matchingProducts = localBatches.filter(item => {
-            return (
-                Number(item.quantity) > 0 &&
-                item.category === category &&
-                companyOf(item) === company &&
-                normalizeArabicSearch(item.name).includes(search)
-            );
-        });
-
-        const uniqueNames = [
-            ...new Set(matchingProducts.map(item => item.name))
-        ];
-
-        uniqueNames.sort((a, b) => {
-            const aName = normalizeArabicSearch(a);
-            const bName = normalizeArabicSearch(b);
-
-            const aStarts = aName.startsWith(search);
-            const bStarts = bName.startsWith(search);
-
-            if (aStarts && !bStarts) return -1;
-            if (!aStarts && bStarts) return 1;
-
-            return a.localeCompare(b, "ar");
-        });
-
-        if (!uniqueNames.length) {
-            suggestions.innerHTML = `
-                <div class="suggestion-item">
-                    لا توجد منتجات مطابقة
-                </div>
-            `;
-            return;
-        }
-
-        suggestions.innerHTML = uniqueNames.map(name => `
-            <div
-                class="suggestion-item"
-                data-name="${escapeHtml(name)}"
-            >
-                ${escapeHtml(name)}
-            </div>
-        `).join("");
-
-        suggestions.querySelectorAll(".suggestion-item[data-name]")
-            .forEach(element => {
-                element.addEventListener("click", function() {
-                    const selectedName = this.dataset.name;
-
-                    input.value = selectedName;
-
-                    suggestions.innerHTML = "";
-
-                    fillProductBatches(selectedName);
-                });
-            });
-    });
 }
 
 
-/* =========================
-   اختيار دفعة المنتج
-========================= */
+// إضافة منتج
 
-function fillProductBatches(productName) {
-    const category = $("posCategorySelect")?.value || "";
-    const company = $("posCompanySelect")?.value || "";
+document.getElementById("productForm")
+.addEventListener("submit",async e=>{
 
-    const batchSelect = $("sellSelectBatch");
+e.preventDefault();
 
-    if (!batchSelect) return;
+let selectedCat =
+document.getElementById("category").value;
 
-    const matchingBatches = localBatches.filter(item => {
-        return (
-            Number(item.quantity) > 0 &&
-            item.category === category &&
-            companyOf(item) === company &&
-            normalizeArabicSearch(item.name) ===
-            normalizeArabicSearch(productName)
-        );
-    });
+if(selectedCat === "__NEW__") {
 
-    if (!matchingBatches.length) {
-        batchSelect.innerHTML =
-            `<option value="">لا توجد دفعات متاحة</option>`;
-        return;
-    }
+selectedCat =
+document.getElementById("customCategoryName").value.trim();
 
-    batchSelect.innerHTML = `
-        <option value="">اختر الدفعة</option>
-        ${matchingBatches.map(item => `
-            <option value="${item.id}">
-                ${escapeHtml(item.name)}
-                - الكمية: ${Number(item.quantity)}
-                - الصلاحية: ${escapeHtml(item.expDate || "-")}
-                - سعر البيع: ${formatMoney(item.sellPrice)}
-            </option>
-        `).join("")}
-    `;
-
-    if (matchingBatches.length === 1) {
-        batchSelect.value = matchingBatches[0].id;
-        calculatePosTotal();
-    }
+if(!selectedCat) {
+return alert("اكتب اسم القسم الجديد!");
 }
 
-
-/* =========================
-   حساب إجمالي البيع
-========================= */
-
-function calculatePosTotal() {
-    const batchId = $("sellSelectBatch")?.value;
-    const quantity = Number($("sellQuantity")?.value || 0);
-
-    const batch = localBatches.find(item => item.id === batchId);
-
-    const totalElement = $("posTotal");
-
-    if (!totalElement) return;
-
-    if (!batch || quantity <= 0) {
-        totalElement.textContent = formatMoney(0);
-        return;
-    }
-
-    const total = quantity * Number(batch.sellPrice || 0);
-
-    totalElement.textContent = formatMoney(total);
 }
 
-window.calculatePosTotal = calculatePosTotal;
+const company =
+document.getElementById("company").value.trim() || "لا شيء";
 
-if ($("sellSelectBatch")) {
-    $("sellSelectBatch").addEventListener("change", calculatePosTotal);
+const name =
+document.getElementById("name").value.trim();
+
+if(!name) {
+return alert("اكتب اسم المنتج!");
 }
 
-if ($("sellQuantity")) {
-    $("sellQuantity").addEventListener("input", calculatePosTotal);
+const totalQty =
+parseFloat(document.getElementById("productQuantity").value) || 0;
+
+const unit =
+document.getElementById("productUnit").value;
+
+if(totalQty <= 0 || !unit) {
+return alert("أدخل كمية ووحدة قياس صحيحتين!");
 }
 
+const prodDateStr =
+document.getElementById("prodDate").value;
 
-/* =========================
-   تنفيذ البيع
-========================= */
+const shelfMonths =
+parseInt(document.getElementById("shelfMonths").value,10);
 
-const sellForm = $("sellForm");
-
-if (sellForm) {
-    sellForm.addEventListener("submit", async function(event) {
-        event.preventDefault();
-
-        const batchId = $("sellSelectBatch")?.value;
-        const quantity = Number($("sellQuantity")?.value);
-
-        const batch = localBatches.find(item => item.id === batchId);
-
-        if (!batch) {
-            showMessage("اختر المنتج والدفعة أولاً.");
-            return;
-        }
-
-        if (!Number.isFinite(quantity) || quantity <= 0) {
-            showMessage("أدخل كمية صحيحة.");
-            return;
-        }
-
-        if (quantity > Number(batch.quantity)) {
-            showMessage("الكمية المطلوبة أكبر من الكمية الموجودة في المخزون.");
-            return;
-        }
-
-        try {
-            const remainingQuantity =
-                Number(batch.quantity) - quantity;
-
-            const profit =
-                quantity *
-                (Number(batch.sellPrice || 0) -
-                 Number(batch.buyPrice || 0));
-
-            await updateDoc(doc(db, "products", batchId), {
-                quantity: remainingQuantity
-            });
-
-            await addDoc(salesRef, {
-                category: batch.category,
-                company: companyOf(batch),
-                productName: batch.name,
-                soldQty: quantity,
-                profit,
-                soldAt: new Date()
-            });
-
-            sellForm.reset();
-
-            if ($("searchPosProduct")) {
-                $("searchPosProduct").value = "";
-            }
-
-            if ($("posProductSuggestions")) {
-                $("posProductSuggestions").innerHTML = "";
-            }
-
-            if ($("sellSelectBatch")) {
-                $("sellSelectBatch").innerHTML =
-                    `<option value="">اختر المنتج أولاً</option>`;
-            }
-
-            calculatePosTotal();
-
-            showMessage("تم تسجيل البيع بنجاح.");
-
-        } catch (error) {
-            console.error(error);
-            showMessage("حدث خطأ أثناء تسجيل البيع.");
-        }
-    });
+if(!prodDateStr || !Number.isFinite(shelfMonths) || shelfMonths <= 0) {
+return alert("أدخل تاريخ الإنتاج ومدة صلاحية صحيحة!");
 }
 
+const pDate = new Date(`${prodDateStr}T12:00:00`);
 
-/* =========================
-   المنتجات القريبة من الانتهاء
-========================= */
+pDate.setMonth(pDate.getMonth()+shelfMonths);
 
-function renderExpiringProducts() {
-    const tableBody = $("expiringTableBody");
+const expDateStr =
+`${pDate.getFullYear()}-${String(pDate.getMonth()+1).padStart(2,"0")}-${String(pDate.getDate()).padStart(2,"0")}`;
 
-    if (!tableBody) return;
+const buyPrice =
+parseFloat(document.getElementById("buyPrice").value);
 
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+const sellPrice =
+parseFloat(document.getElementById("sellPrice").value);
 
-    const limitDate = new Date(today);
-    limitDate.setDate(limitDate.getDate() + 14);
-
-    const expiring = localBatches.filter(item => {
-        if (!item.expDate) return false;
-
-        const expiry = new Date(item.expDate + "T00:00:00");
-
-        return expiry <= limitDate;
-    });
-
-    if (!expiring.length) {
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="6">لا توجد منتجات منتهية أو قريبة من الانتهاء.</td>
-            </tr>
-        `;
-        return;
-    }
-
-    tableBody.innerHTML = expiring.map(item => {
-        const expiry = new Date(item.expDate + "T00:00:00");
-
-        const expired = expiry < today;
-
-        return `
-            <tr>
-                <td>${escapeHtml(item.category)}</td>
-                <td>${escapeHtml(companyOf(item))}</td>
-                <td>${escapeHtml(item.name)}</td>
-                <td>${Number(item.quantity || 0)}</td>
-                <td>${escapeHtml(item.expDate)}</td>
-                <td>${expired ? "منتهي الصلاحية" : "قريب من الانتهاء"}</td>
-            </tr>
-        `;
-    }).join("");
+if(!Number.isFinite(buyPrice) || buyPrice < 0 ||
+   !Number.isFinite(sellPrice) || sellPrice < 0) {
+return alert("تأكد من إدخال أسعار صحيحة.");
 }
 
+try {
 
-/* =========================
-   تسجيل المصروفات
-========================= */
+await addDoc(productsRef,{
 
-const deductProfitForm = $("deductProfitForm");
+category:selectedCat,
+company:company,
+name:name,
+quantity:totalQty,
+unit:unit,
+prodDate:prodDateStr,
+expDate:expDateStr,
+buyPrice:buyPrice,
+sellPrice:sellPrice,
+createdAt:new Date()
 
-if (deductProfitForm) {
-    deductProfitForm.addEventListener("submit", async function(event) {
-        event.preventDefault();
+});
 
-        const reason = $("expenseReason")?.value.trim();
-        const amount = Number($("expenseAmount")?.value);
+document.getElementById("productForm").reset();
 
-        if (!reason || !Number.isFinite(amount) || amount <= 0) {
-            showMessage("أدخل سبب المصروف ومبلغاً صحيحاً.");
-            return;
-        }
-
-        try {
-            await addDoc(salesRef, {
-                category: "مصروفات",
-                productName: `خصم: ${reason}`,
-                soldQty: 0,
-                profit: -amount,
-                soldAt: new Date()
-            });
-
-            deductProfitForm.reset();
-
-            showMessage("تم تسجيل المصروف بنجاح.");
-
-        } catch (error) {
-            console.error(error);
-            showMessage("حدث خطأ أثناء تسجيل المصروف.");
-        }
-    });
-}
-
-
-/* =========================
-   التقارير والأرباح
-========================= */
-
-function updateReports() {
-    const capital = localBatches.reduce((total, item) => {
-        return total +
-            Number(item.quantity || 0) *
-            Number(item.buyPrice || 0);
-    }, 0);
-
-    if ($("totalCapital")) {
-        $("totalCapital").textContent = formatMoney(capital);
-    }
-
-    const monthlyData = {};
-
-    allSales.forEach(sale => {
-        const date = sale.soldAtDate || new Date();
-
-        if (isNaN(date.getTime())) return;
-
-        const monthKey =
-            date.getFullYear() + "-" +
-            String(date.getMonth() + 1).padStart(2, "0");
-
-        if (!monthlyData[monthKey]) {
-            monthlyData[monthKey] = {
-                salesProfit: 0,
-                expenses: 0,
-                days: new Set()
-            };
-        }
-
-        const profit = Number(sale.profit || 0);
-
-        if (sale.category === "مصروفات") {
-            monthlyData[monthKey].expenses += Math.abs(profit);
-        } else {
-            monthlyData[monthKey].salesProfit += profit;
-
-            if (Number(sale.soldQty || 0) > 0) {
-                monthlyData[monthKey].days.add(
-                    date.toISOString().split("T")[0]
-                );
-            }
-        }
-    });
-
-    const currentDate = new Date();
-
-    const currentMonthKey =
-        currentDate.getFullYear() + "-" +
-        String(currentDate.getMonth() + 1).padStart(2, "0");
-
-    const currentMonth = monthlyData[currentMonthKey] || {
-        salesProfit: 0,
-        expenses: 0,
-        days: new Set()
-    };
-
-    const netProfit =
-        currentMonth.salesProfit - currentMonth.expenses;
-
-    const averageDailyProfit =
-        currentMonth.days.size > 0
-            ? netProfit / currentMonth.days.size
-            : 0;
-
-    if ($("totalProfit")) {
-        $("totalProfit").textContent = formatMoney(netProfit);
-    }
-
-    if ($("monthlyProfit")) {
-        $("monthlyProfit").textContent =
-            formatMoney(currentMonth.salesProfit);
-    }
-
-    if ($("totalExpenses")) {
-        $("totalExpenses").textContent =
-            formatMoney(currentMonth.expenses);
-    }
-
-    if ($("dailyAverage")) {
-        $("dailyAverage").textContent =
-            formatMoney(averageDailyProfit);
-    }
-
-    renderMonthlyReports(monthlyData);
-    renderCategoryReports();
-}
-
-
-/* =========================
-   تقرير الشهور
-========================= */
-
-function renderMonthlyReports(monthlyData) {
-    const tableBody = $("monthlyReportsBody");
-
-    if (!tableBody) return;
-
-    const months = Object.keys(monthlyData).sort().reverse();
-
-    if (!months.length) {
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="5">لا توجد بيانات مبيعات حتى الآن.</td>
-            </tr>
-        `;
-        return;
-    }
-
-    tableBody.innerHTML = months.map(month => {
-        const data = monthlyData[month];
-
-        const net = data.salesProfit - data.expenses;
-
-        return `
-            <tr>
-                <td>${escapeHtml(month)}</td>
-                <td>${formatMoney(data.salesProfit)}</td>
-                <td>${formatMoney(data.expenses)}</td>
-                <td>${formatMoney(net)}</td>
-                <td>${data.days.size}</td>
-            </tr>
-        `;
-    }).join("");
-}
-
-
-/* =========================
-   تقرير الأقسام
-========================= */
-
-function renderCategoryReports() {
-    const tableBody = $("categoryReportsBody");
-
-    if (!tableBody) return;
-
-    const categories = getAllCategories();
-
-    if (!categories.length) {
-        tableBody.innerHTML = `
-            <tr>
-                <td colspan="4">لا توجد بيانات.</td>
-            </tr>
-        `;
-        return;
-    }
-
-    tableBody.innerHTML = categories.map(category => {
-        const categoryProducts = localBatches.filter(
-            item => item.category === category
-        );
-
-        const categoryCapital = categoryProducts.reduce(
-            (total, item) =>
-                total +
-                Number(item.quantity || 0) *
-                Number(item.buyPrice || 0),
-            0
-        );
-
-        const categoryProfit = allSales
-            .filter(sale =>
-                sale.category === category &&
-                sale.category !== "مصروفات"
-            )
-            .reduce(
-                (total, sale) =>
-                    total + Number(sale.profit || 0),
-                0
-            );
-
-        return `
-            <tr>
-                <td>${escapeHtml(category)}</td>
-                <td>${formatMoney(categoryCapital)}</td>
-                <td>${formatMoney(categoryProfit)}</td>
-                <td>${categoryProducts.length}</td>
-            </tr>
-        `;
-    }).join("");
-}
-
-
-/* =========================
-   تصفير جميع البيانات
-========================= */
-
-window.resetAllData = async function() {
-    const confirmation = prompt(
-        'لتأكيد حذف جميع المنتجات والمبيعات والمصروفات، اكتب كلمة "البركة".'
-    );
-
-    if (confirmation !== "البركة") {
-        showMessage("تم إلغاء العملية.");
-        return;
-    }
-
-    if (!confirm("تحذير: سيتم حذف جميع البيانات نهائياً. هل أنت متأكد؟")) {
-        return;
-    }
-
-    try {
-        const deleteProducts = localBatches.map(item =>
-            deleteDoc(doc(db, "products", item.id))
-        );
-
-        const deleteSales = allSales.map(item =>
-            deleteDoc(doc(db, "sales", item.id))
-        );
-
-        await Promise.all([
-            ...deleteProducts,
-            ...deleteSales
-        ]);
-
-        showMessage("تم حذف جميع البيانات.");
-
-    } catch (error) {
-        console.error(error);
-        showMessage("حدث خطأ أثناء حذف البيانات.");
-    }
-};
-
-
-/* =========================
-   تشغيل أولي
-========================= */
+document.getElementById("newCategoryGroup").style.display="none";
 
 onCategoryChange();
+
+alert("تم حفظ الدفعة بنجاح!");
+
+} catch(err) {
+
+alert("خطأ في الحفظ: "+err.message);
+
+}
+
+});
+
+
+// خصم المصروفات
+
+document.getElementById("deductProfitForm")
+.addEventListener("submit",async e=>{
+
+e.preventDefault();
+
+const amount =
+parseFloat(document.getElementById("deductAmount").value) || 0;
+
+const reason =
+document.getElementById("deductReason").value.trim() ||
+"مصروفات عامة";
+
+if(amount <= 0) {
+return alert("ادخل مبلغ صحيح للخصم!");
+}
+
+try {
+
+await addDoc(salesRef,{
+
+category:"مصروفات",
+productName:`خصم: ${reason}`,
+soldQty:0,
+profit:-amount,
+soldAt:new Date()
+
+});
+
+alert("تم خصم "+amount+" ج.م بنجاح!");
+
+document.getElementById("deductProfitForm").reset();
+
+} catch(err) {
+
+alert("خطأ أثناء الخصم: "+err.message);
+
+}
+
+});
+
+
+// تحميل المنتجات من Firebase
+
+onSnapshot(productsRef,snapshot=>{
+
+localBatches=[];
+
+snapshot.forEach(docSnap=>{
+
+const item = docSnap.data();
+
+item.id = docSnap.id;
+
+localBatches.push(item);
+
+});
 
 updateCategorySelects();
 
 updateAutocompleteLists();
 
+renderFilteredInventory();
+
+filterPosDropdown();
+
+renderExpiringProducts();
+
+updateReports();
+
+});
+
+
+// تحميل المبيعات والمصروفات
+
+onSnapshot(salesRef,snapshot=>{
+
+allSales=[];
+
+snapshot.forEach(docSnap=>{
+
+const sale = docSnap.data();
+
+sale.id = docSnap.id;
+
+if(sale.soldAt && typeof sale.soldAt.toDate === "function") {
+
+sale.soldAtDate = sale.soldAt.toDate();
+
+} else {
+
+sale.soldAtDate = null;
+
+}
+
+allSales.push(sale);
+
+});
+
+updateReports();
+
+});
+
+
+// تحديث الأقسام
+
+function updateCategorySelects() {
+
+const addSelect = document.getElementById("category");
+
+const filterSelect =
+document.getElementById("filterByCategorySelect");
+
+const currentFilterVal = filterSelect.value;
+
+const existingCats = [
+"لحوم وكبدة",
+"أسماك ورنجة",
+"توابل",
+"بيض",
+"مصنعات وبطاطس"
+];
+
+const dynamicCats = [
+...new Set(localBatches.map(p=>p.category).filter(Boolean))
+];
+
+const allCats = [
+...new Set([...existingCats,...dynamicCats])
+];
+
+dynamicCats.forEach(cat=>{
+
+if(!existingCats.includes(cat) && cat!=="مصروفات") {
+
+let exists = Array.from(addSelect.options)
+.some(opt=>opt.value===cat);
+
+if(!exists) {
+
+const opt = document.createElement("option");
+
+opt.value = cat;
+opt.textContent = cat;
+
+addSelect.insertBefore(
+opt,
+addSelect.options[addSelect.options.length-1]
+);
+
+}
+
+}
+
+});
+
+filterSelect.innerHTML =
+'<option value="ALL">عرض كل الأقسام</option>';
+
+allCats.forEach(cat=>{
+
+if(cat==="مصروفات") return;
+
+const opt = document.createElement("option");
+
+opt.value = cat;
+opt.textContent = cat;
+
+filterSelect.appendChild(opt);
+
+});
+
+if(Array.from(filterSelect.options)
+.some(o=>o.value===currentFilterVal)) {
+
+filterSelect.value=currentFilterVal;
+
+}
+
+}
+
+
+// عرض المخزون
+
+window.renderFilteredInventory = function() {
+
+const selectedCat =
+document.getElementById("filterByCategorySelect").value;
+
+const tbody =
+document.getElementById("allInventoryBody");
+
+tbody.innerHTML="";
+
+const filtered =
+selectedCat==="ALL"
+? localBatches
+: localBatches.filter(p=>p.category===selectedCat);
+
+if(filtered.length===0) {
+
+tbody.innerHTML =
+'<tr><td colspan="10">لا توجد منتجات في هذا القسم حالياً.</td></tr>';
+
+return;
+
+}
+
+filtered.forEach(item=>{
+
+const tr=document.createElement("tr");
+
+tr.innerHTML=`
+
+<td>${escapeHtml(item.category)}</td>
+
+<td>${escapeHtml(companyOf(item))}</td>
+
+<td><strong>${escapeHtml(item.name)}</strong></td>
+
+<td>${Number(item.quantity || 0)} ${escapeHtml(item.unit || "وحدة")}</td>
+
+<td>${Number(item.buyPrice || 0)} ج.م</td>
+
+<td>${Number(item.sellPrice || 0)} ج.م</td>
+
+<td>${escapeHtml(item.prodDate || "-")}</td>
+
+<td>${escapeHtml(item.expDate || "-")}</td>
+
+<td>
+${item.quantity<=2
+? "<span class='badge-warning'>مخزون منخفض</span>"
+: "سليم"}
+</td>
+
+<td>
+
+<button class="btn-edit" type="button"
+onclick="editBatch('${item.id}')">
+✏️ تعديل
+</button>
+
+<button class="btn-delete" type="button"
+onclick="deleteBatch('${item.id}')">
+🗑️ حذف
+</button>
+
+</td>
+
+`;
+
+tbody.appendChild(tr);
+
+});
+
+};
+
+
+// ========================================
+// الكاشير: البحث عن الأقسام
+// ========================================
+
+window.filterPosDropdown = function() {
+
+const searchInput = document.getElementById("searchPos");
+
+const rawSearch = searchInput?.value || "";
+
+const searchVal = normalizeArabicSearch(rawSearch);
+
+const suggestionsBox =
+document.getElementById("posCategorySuggestions");
+
+const categories = [...new Set(
+
+localBatches
+.filter(item => Number(item.quantity) > 0 && item.category)
+.map(item => item.category)
+
+)].sort((a,b) =>
+normalizeArabicSearch(a).localeCompare(
+normalizeArabicSearch(b),"ar"
+)
+);
+
+suggestionsBox.innerHTML = "";
+
+if(searchVal) {
+
+const matches = categories.filter(category =>
+normalizeArabicSearch(category).includes(searchVal)
+);
+
+matches.sort((a,b)=>{
+const aStarts = normalizeArabicSearch(a).startsWith(searchVal);
+const bStarts = normalizeArabicSearch(b).startsWith(searchVal);
+
+if(aStarts && !bStarts) return -1;
+if(!aStarts && bStarts) return 1;
+
+return a.localeCompare(b,"ar");
+});
+
+matches.forEach(category => {
+
+const button = document.createElement("button");
+
+button.type = "button";
+
+button.className = "pos-suggestion-item";
+
+button.setAttribute("role", "option");
+
+button.textContent = category;
+
+button.addEventListener("click", () => {
+
+selectPosCategory(category);
+
+});
+
+suggestionsBox.appendChild(button);
+
+});
+
+suggestionsBox.style.display =
+matches.length ? "block" : "none";
+
+} else {
+
+suggestionsBox.style.display = "none";
+
+}
+
+};
+
+
+// اختيار القسم
+
+function selectPosCategory(category) {
+
+selectedPosCategory = category;
+
+selectedPosCompany = "";
+
+document.getElementById("searchPos").value = category;
+
+document.getElementById("posCategorySuggestions").style.display = "none";
+
+const companySelect =
+document.getElementById("posCompanySelect");
+
+const companies = [
+...new Set(
+localBatches
+.filter(item =>
+Number(item.quantity) > 0 &&
+item.category === category
+)
+.map(item => companyOf(item))
+)
+].sort((a,b)=>a.localeCompare(b,"ar"));
+
+companySelect.innerHTML =
+'<option value="">-- اختر الشركة --</option>';
+
+companies.forEach(company=>{
+
+const option = document.createElement("option");
+
+option.value = company;
+option.textContent = company;
+
+companySelect.appendChild(option);
+
+});
+
+companySelect.disabled = false;
+
+resetPosProductSelection();
+
+}
+
+
+// عند تغيير القسم من جديد
+
+document.getElementById("searchPos")
+.addEventListener("input",function(){
+
+selectedPosCategory = "";
+selectedPosCompany = "";
+
+document.getElementById("posCompanySelect").innerHTML =
+'<option value="">اختر القسم أولاً</option>';
+
+document.getElementById("posCompanySelect").disabled = true;
+
+resetPosProductSelection();
+
+});
+
+
+// تغيير الشركة
+
+document.getElementById("posCompanySelect")
+.addEventListener("change",function(){
+
+selectedPosCompany = this.value;
+
+resetPosProductSelection();
+
+const productInput =
+document.getElementById("searchPosProduct");
+
+productInput.disabled = !selectedPosCompany;
+
+productInput.value = "";
+
+if(selectedPosCompany) {
+productInput.placeholder = "اكتب اسم المنتج...";
+productInput.focus();
+} else {
+productInput.placeholder = "اختر الشركة أولاً";
+}
+
+});
+
+
+// إعادة ضبط اختيار المنتج
+
+function resetPosProductSelection() {
+
+const productInput =
+document.getElementById("searchPosProduct");
+
+productInput.value = "";
+
+productInput.disabled = !selectedPosCompany;
+
+document.getElementById("posProductSuggestions").innerHTML = "";
+
+document.getElementById("posProductSuggestions").style.display = "none";
+
+document.getElementById("sellSelectBatch").innerHTML =
+'<option value="">-- اختر المنتج أولاً --</option>';
+
+calculatePosTotal();
+
+}
+
+
+// ========================================
+// اقتراح المنتجات حسب القسم والشركة
+// ========================================
+
+document.getElementById("searchPosProduct")
+.addEventListener("input",function(){
+
+const searchVal = normalizeArabicSearch(this.value);
+
+const suggestionsBox =
+document.getElementById("posProductSuggestions");
+
+suggestionsBox.innerHTML = "";
+
+if(!selectedPosCategory || !selectedPosCompany || !searchVal) {
+
+suggestionsBox.style.display = "none";
+
+document.getElementById("sellSelectBatch").innerHTML =
+'<option value="">-- اختر المنتج أولاً --</option>';
+
+calculatePosTotal();
+
+return;
+
+}
+
+const matchingProducts = localBatches.filter(item=>{
+
+return (
+Number(item.quantity) > 0 &&
+item.category === selectedPosCategory &&
+companyOf(item) === selectedPosCompany &&
+normalizeArabicSearch(item.name).includes(searchVal)
+);
+
+});
+
+const uniqueNames = [
+...new Set(matchingProducts.map(item=>item.name))
+];
+
+uniqueNames.sort((a,b)=>{
+
+const aName = normalizeArabicSearch(a);
+const bName = normalizeArabicSearch(b);
+
+const aStarts = aName.startsWith(searchVal);
+const bStarts = bName.startsWith(searchVal);
+
+if(aStarts && !bStarts) return -1;
+if(!aStarts && bStarts) return 1;
+
+return aName.localeCompare(bName,"ar");
+
+});
+
+if(uniqueNames.length === 0) {
+
+suggestionsBox.innerHTML =
+'<div class="pos-suggestion-item">لا توجد منتجات مطابقة</div>';
+
+suggestionsBox.style.display = "block";
+
+document.getElementById("sellSelectBatch").innerHTML =
+'<option value="">لا توجد منتجات مطابقة</option>';
+
+calculatePosTotal();
+
+return;
+
+}
+
+uniqueNames.forEach(name=>{
+
+const button = document.createElement("button");
+
+button.type = "button";
+
+button.className = "pos-suggestion-item";
+
+button.textContent = name;
+
+button.addEventListener("click",()=>{
+
+document.getElementById("searchPosProduct").value = name;
+
+suggestionsBox.innerHTML = "";
+
+suggestionsBox.style.display = "none";
+
+fillProductBatches(name);
+
+});
+
+suggestionsBox.appendChild(button);
+
+});
+
+suggestionsBox.style.display = "block";
+
+});
+
+
+// اختيار دفعات المنتج
+
+function fillProductBatches(productName) {
+
+const select = document.getElementById("sellSelectBatch");
+
+const batches = localBatches.filter(item=>{
+
+return (
+Number(item.quantity) > 0 &&
+item.category === selectedPosCategory &&
+companyOf(item) === selectedPosCompany &&
+normalizeArabicSearch(item.name) ===
+normalizeArabicSearch(productName)
+);
+
+});
+
+select.innerHTML =
+'<option value="">-- اختر الدفعة --</option>';
+
+batches.sort((a,b)=>{
+
+return String(a.expDate || "").localeCompare(
+String(b.expDate || "")
+);
+
+});
+
+batches.forEach(item=>{
+
+const option = document.createElement("option");
+
+option.value = item.id;
+
+option.textContent =
+`الكمية: ${item.quantity} ${item.unit || "وحدة"} | سعر البيع: ${item.sellPrice} ج.م | ينتهي: ${item.expDate || "-"}`;
+
+select.appendChild(option);
+
+});
+
+if(batches.length === 1) {
+
+select.value = batches[0].id;
+
+calculatePosTotal();
+
+}
+
+}
+
+
+// إخفاء الاقتراحات عند الضغط خارجها
+
+document.addEventListener("click",event=>{
+
+const categorySearch = document.getElementById("searchPos");
+
+const categorySuggestions =
+document.getElementById("posCategorySuggestions");
+
+if(
+categorySearch &&
+categorySuggestions &&
+!categorySearch.contains(event.target) &&
+!categorySuggestions.contains(event.target)
+) {
+
+categorySuggestions.style.display = "none";
+
+}
+
+const productSearch = document.getElementById("searchPosProduct");
+
+const productSuggestions =
+document.getElementById("posProductSuggestions");
+
+if(
+productSearch &&
+productSuggestions &&
+!productSearch.contains(event.target) &&
+!productSuggestions.contains(event.target)
+) {
+
+productSuggestions.style.display = "none";
+
+}
+
+});
+
+
+// ========================================
+// حساب إجمالي الكاشير
+// ========================================
+
+window.calculatePosTotal = function() {
+
+const id =
+document.getElementById("sellSelectBatch").value;
+
+const qty =
+parseFloat(document.getElementById("sellQuantity").value) || 0;
+
+const item = localBatches.find(p=>p.id===id);
+
+const total = item ? qty*Number(item.sellPrice || 0) : 0;
+
+document.getElementById("posTotalDisplay").value =
+total.toFixed(2)+" ج.م";
+
+};
+
+
+// ========================================
+// إتمام البيع
+// ========================================
+
+document.getElementById("sellForm")
+.addEventListener("submit",async e=>{
+
+e.preventDefault();
+
+const id =
+document.getElementById("sellSelectBatch").value;
+
+const item = localBatches.find(p=>p.id===id);
+
+if(!item) {
+return alert("اختر دفعة صحيحة من القائمة!");
+}
+
+const sellQty =
+parseFloat(document.getElementById("sellQuantity").value) || 0;
+
+if(!Number.isFinite(sellQty) || sellQty<=0) {
+return alert("اكتب كمية أكبر من صفر!");
+}
+
+if(sellQty>Number(item.quantity)+0.001) {
+
+return alert(
+`الكمية المطلوبة (${sellQty}) أكبر من المتاح (${item.quantity})!`
+);
+
+}
+
+const finalSellQty = Math.min(sellQty,Number(item.quantity));
+
+const newQty =
+Number((Number(item.quantity)-finalSellQty).toFixed(3));
+
+const profitMade =
+finalSellQty*(Number(item.sellPrice)-Number(item.buyPrice));
+
+try {
+
+await updateDoc(doc(db,"products",id),{
+quantity:newQty
+});
+
+await addDoc(salesRef,{
+
+category:item.category,
+company:companyOf(item),
+productName:item.name,
+soldQty:finalSellQty,
+profit:profitMade,
+soldAt:new Date()
+
+});
+
+alert(
+`تم البيع بنجاح! المكسب: ${profitMade.toFixed(2)} ج.م`
+);
+
+document.getElementById("sellForm").reset();
+
+document.getElementById("posTotalDisplay").value="0 ج.م";
+
+resetPosProductSelection();
+
+filterPosDropdown();
+
+} catch(err) {
+
+alert("خطأ أثناء البيع: "+err.message);
+
+}
+
+});
+
+
+// ========================================
+// تعديل بيانات الدفعة بالكامل
+// الشركة + الاسم + الأسعار + الكمية
+// ========================================
+
+window.editBatch = async function(id) {
+
+const item = localBatches.find(p => p.id === id);
+
+if(!item) {
+return alert("لم يتم العثور على المنتج المطلوب.");
+}
+
+
+// تعديل الشركة
+
+const companyInput = prompt(
+"اسم الشركة (اتركه فارغاً لعرض لا شيء):",
+companyOf(item) === "لا شيء" ? "" : companyOf(item)
+);
+
+if(companyInput === null) return;
+
+const newCompany = companyInput.trim() || "لا شيء";
+
+
+// تعديل اسم المنتج
+
+const newNameInput = prompt(
+"اسم المنتج:",
+item.name || ""
+);
+
+if(newNameInput === null) return;
+
+const newName = newNameInput.trim();
+
+if(!newName) {
+return alert("اسم المنتج لا يمكن أن يكون فارغاً.");
+}
+
+
+// تعديل سعر الشراء
+
+const buyInput = prompt(
+"سعر الشراء الحالي (جنيه):",
+item.buyPrice ?? 0
+);
+
+if(buyInput === null) return;
+
+const newBuyPrice = Number(buyInput);
+
+if(
+buyInput.trim() === "" ||
+!Number.isFinite(newBuyPrice) ||
+newBuyPrice < 0
+) {
+return alert("سعر الشراء غير صحيح.");
+}
+
+
+// تعديل سعر البيع
+
+const sellInput = prompt(
+"سعر البيع الحالي (جنيه):",
+item.sellPrice ?? 0
+);
+
+if(sellInput === null) return;
+
+const newSellPrice = Number(sellInput);
+
+if(
+sellInput.trim() === "" ||
+!Number.isFinite(newSellPrice) ||
+newSellPrice < 0
+) {
+return alert("سعر البيع غير صحيح.");
+}
+
+
+// تعديل الكمية المتبقية
+
+const quantityInput = prompt(
+`الكمية المتبقية حالياً (${item.unit || "وحدة"}):`,
+item.quantity ?? 0
+);
+
+if(quantityInput === null) return;
+
+const newQuantity = Number(quantityInput);
+
+if(
+quantityInput.trim() === "" ||
+!Number.isFinite(newQuantity) ||
+newQuantity < 0
+) {
+return alert("الكمية غير صحيحة. يجب أن تكون صفراً أو أكبر.");
+}
+
+
+// حفظ التعديلات في Firebase
+
+try {
+
+await updateDoc(doc(db,"products",id),{
+
+company:newCompany,
+
+name:newName,
+
+buyPrice:newBuyPrice,
+
+sellPrice:newSellPrice,
+
+quantity:Number(newQuantity.toFixed(3))
+
+});
+
+alert("✅ تم تعديل الشركة واسم المنتج والأسعار والكمية بنجاح.");
+
+} catch(err) {
+
+alert("تعذر تعديل المنتج: " + err.message);
+
+}
+
+};
+
+
+// حذف دفعة
+
+window.deleteBatch = async function(id) {
+
+if(confirm("هل أنت متأكد من حذف هذه الدفعة؟")) {
+
+try {
+
+await deleteDoc(doc(db,"products",id));
+
+alert("تم حذف الدفعة بنجاح.");
+
+} catch(err) {
+
+alert("حدث خطأ أثناء الحذف: "+err.message);
+
+}
+
+}
+
+};
+
+
+// ========================================
+// تنبيهات الصلاحية
+// ========================================
+
+function renderExpiringProducts() {
+
+const tbody =
+document.getElementById("expiringBody");
+
+tbody.innerHTML="";
+
+const today = new Date();
+
+today.setHours(0,0,0,0);
+
+const criticalItems = localBatches.filter(item=>{
+
+if(!item.expDate || item.quantity<=0) return false;
+
+const expDate = new Date(item.expDate+"T00:00:00");
+
+if(isNaN(expDate.getTime())) return false;
+
+const diffDays =
+Math.ceil((expDate-today)/(1000*60*60*24));
+
+return diffDays<=14;
+
+});
+
+if(criticalItems.length===0) {
+
+tbody.innerHTML =
+'<tr><td colspan="6">لا توجد منتجات قريبة من انتهاء الصلاحية حالياً.</td></tr>';
+
+return;
+
+}
+
+criticalItems.forEach(item=>{
+
+const expDate =
+new Date(item.expDate+"T00:00:00");
+
+const diffDays =
+Math.ceil((expDate-today)/(1000*60*60*24));
+
+let badge =
+diffDays<=0
+? "<span class='badge-danger'>منتهي الصلاحية!</span>"
+: `<span class='badge-danger'>ينتهي خلال ${diffDays} يوم</span>`;
+
+const tr=document.createElement("tr");
+
+tr.innerHTML=`
+
+<td>${escapeHtml(item.category)}</td>
+
+<td>${escapeHtml(companyOf(item))}</td>
+
+<td><strong>${escapeHtml(item.name)}</strong></td>
+
+<td>${Number(item.quantity)} ${escapeHtml(item.unit || "وحدة")}</td>
+
+<td>${escapeHtml(item.expDate)}</td>
+
+<td>${badge}</td>
+
+`;
+
+tbody.appendChild(tr);
+
+});
+
+}
+
+
+// ========================================
+// تقارير الأرباح لجميع الشهور
+// ========================================
+
+function updateReports() {
+
+
+// رأس المال
+
+let totalCap=0;
+
+localBatches.forEach(item=>{
+
+totalCap +=
+Number(item.quantity)*Number(item.buyPrice);
+
+});
+
+document.getElementById("totalCapital").textContent =
+totalCap.toFixed(2)+" ج.م";
+
+
+// الشهر المختار
+
+const selectedMonth =
+document.getElementById("reportMonth").value ||
+new Date().toISOString().slice(0,7);
+
+const [year,month] =
+selectedMonth.split("-").map(Number);
+
+
+// تجميع بيانات الشهور
+
+const monthlyData={};
+
+allSales.forEach(sale=>{
+
+const d=sale.soldAtDate;
+
+if(!d || isNaN(d.getTime())) return;
+
+const key =
+`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+
+if(!monthlyData[key]) {
+
+monthlyData[key]={
+salesProfit:0,
+expenses:0
+};
+
+}
+
+const amount=Number(sale.profit)||0;
+
+if(sale.category==="مصروفات") {
+
+monthlyData[key].expenses += Math.abs(amount);
+
+} else {
+
+monthlyData[key].salesProfit += amount;
+
+}
+
+});
+
+
+// إضافة الشهر المختار حتى لو لم توجد فيه حركات
+
+if(!monthlyData[selectedMonth]) {
+
+monthlyData[selectedMonth]={
+salesProfit:0,
+expenses:0
+};
+
+}
+
+
+// حساب صافي الربح
+
+const selectedData=monthlyData[selectedMonth];
+
+const monthProfit =
+selectedData.salesProfit-selectedData.expenses;
+
+
+// متوسط الربح اليومي
+
+const activeDays=new Set();
+
+allSales.forEach(sale=>{
+
+const d=sale.soldAtDate;
+
+if(
+d &&
+d.getFullYear()===year &&
+d.getMonth()===month-1 &&
+sale.category!=="مصروفات"
+) {
+
+activeDays.add(
+`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
+);
+
+}
+
+});
+
+const avgDaily =
+activeDays.size
+? monthProfit/activeDays.size
+: 0;
+
+
+document.getElementById("novProfit").textContent =
+monthProfit.toFixed(2)+" ج.م";
+
+document.getElementById("avgDailyProfit").textContent =
+avgDaily.toFixed(2)+" ج.م / يوم";
+
+
+// جدول كل الشهور
+
+const monthlyBody =
+document.getElementById("monthlyProfitsBody");
+
+monthlyBody.innerHTML="";
+
+const months =
+Object.keys(monthlyData).sort().reverse();
+
+if(months.length===0) {
+
+monthlyBody.innerHTML =
+'<tr><td colspan="4">لا توجد حركات مسجلة حتى الآن.</td></tr>';
+
+} else {
+
+months.forEach(key=>{
+
+const data=monthlyData[key];
+
+const netProfit =
+data.salesProfit-data.expenses;
+
+const tr=document.createElement("tr");
+
+tr.innerHTML=`
+
+<td>
+<strong>${escapeHtml(key)}</strong>
+${key===selectedMonth ? " ⭐" : ""}
+</td>
+
+<td style="color:green">
+${data.salesProfit.toFixed(2)} ج.م
+</td>
+
+<td style="color:red">
+${data.expenses.toFixed(2)} ج.م
+</td>
+
+<td style="
+font-weight:bold;
+color:${netProfit>=0 ? "green" : "red"}">
+
+${netProfit.toFixed(2)} ج.م
+
+</td>
+
+`;
+
+monthlyBody.appendChild(tr);
+
+});
+
+}
+
+
+// تقارير الأقسام
+
+const categories=[...new Set([
+
+...localBatches.map(p=>p.category),
+
+...allSales
+.map(s=>s.category)
+.filter(c=>c && c!=="مصروفات")
+
+].filter(Boolean))];
+
+
+const tbody =
+document.getElementById("categoryReportsBody");
+
+tbody.innerHTML="";
+
+if(categories.length===0) {
+
+tbody.innerHTML =
+'<tr><td colspan="3">لا توجد بيانات حالياً</td></tr>';
+
+return;
+
+}
+
+
+categories.forEach(cat=>{
+
+const catCapital =
+localBatches
+.filter(p=>p.category===cat)
+.reduce(
+(sum,p)=>sum+Number(p.quantity)*Number(p.buyPrice),
+0
+);
+
+
+const catProfit =
+allSales
+.filter(s=>
+s.category===cat &&
+s.soldAtDate &&
+s.soldAtDate.getFullYear()===year &&
+s.soldAtDate.getMonth()===month-1
+)
+.reduce(
+(sum,s)=>sum+(Number(s.profit)||0),
+0
+);
+
+
+const tr=document.createElement("tr");
+
+tr.innerHTML=`
+
+<td><strong>${escapeHtml(cat)}</strong></td>
+
+<td>${catCapital.toFixed(2)} ج.م</td>
+
+<td style="
+color:${catProfit>=0 ? "green" : "red"};
+font-weight:bold">
+
+${catProfit.toFixed(2)} ج.م
+
+</td>
+
+`;
+
+tbody.appendChild(tr);
+
+});
+
+}
+
+
+// تحديث التقارير عند تغيير الشهر
+
+document.getElementById("reportMonth")
+.addEventListener("change",updateReports);
+
+
+// ========================================
+// تصفير البيانات
+// ========================================
+
+window.resetAllData = async function() {
+
+if(!confirm(
+"تحذير: سيتم حذف كل المنتجات والمبيعات والمصروفات نهائياً. هل تريد المتابعة؟"
+)) return;
+
+if(prompt("للتأكيد اكتب كلمة: البركة")!=="البركة") {
+
+alert("لم يتم التصفير؛ كلمة التأكيد غير مطابقة.");
+
+return;
+
+}
+
+try {
+
+await Promise.all([
+
+...localBatches.map(item=>
+deleteDoc(doc(db,"products",item.id))
+),
+
+...allSales
+.filter(s=>s.id)
+.map(s=>deleteDoc(doc(db,"sales",s.id)))
+
+]);
+
+alert("تم تصفير بيانات الموقع.");
+
+} catch(err) {
+
+alert(
+"تعذر إكمال التصفير. راجع صلاحيات قاعدة البيانات: "+err.message
+);
+
+}
+
+};
+
+
+// التشغيل الأولي
+
+onCategoryChange();
+
 </script>
+
 </body>
 </html>
