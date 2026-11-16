@@ -163,6 +163,32 @@ button.btn-sell {
   background:var(--success);
 }
 
+.btn-edit {
+  background:#0d6efd;
+  color:white;
+  border:none;
+  padding:8px 14px;
+  border-radius:5px;
+  font-weight:bold;
+  cursor:pointer;
+  margin:3px;
+}
+
+.btn-edit:hover {
+  background:#084298;
+}
+
+.btn-delete {
+  background:var(--danger);
+  color:white;
+  border:none;
+  padding:8px 14px;
+  border-radius:5px;
+  cursor:pointer;
+  font-weight:bold;
+  margin:3px;
+}
+
 .btn-danger-custom {
   background:var(--danger);
   color:white;
@@ -210,21 +236,11 @@ th {
   font-size:.8rem;
 }
 
-.btn-delete {
-  background:var(--danger);
-  color:white;
-  border:none;
-  padding:6px 12px;
-  border-radius:4px;
-  cursor:pointer;
-}
-
 small {
   color:#666;
   margin-top:5px;
 }
 
-/* اقتراحات البحث عن القسم في الكاشير */
 .pos-suggestions {
   display:none;
   position:absolute;
@@ -239,6 +255,7 @@ small {
   overflow-y:auto;
   box-shadow:0 4px 10px rgba(0,0,0,.10);
 }
+
 .pos-suggestion-item {
   display:block;
   width:100%;
@@ -250,12 +267,32 @@ small {
   cursor:pointer;
   font:inherit;
 }
+
 .pos-suggestion-item:hover,
 .pos-suggestion-item:focus {
   background:#eaf2ff;
   outline:none;
 }
 
+@media(max-width:600px) {
+  body {
+    padding:8px;
+  }
+
+  .card {
+    padding:12px;
+  }
+
+  th,td {
+    padding:8px;
+    font-size:.8rem;
+  }
+
+  .btn-edit,.btn-delete {
+    padding:7px 9px;
+    font-size:12px;
+  }
+}
 </style>
 </head>
 
@@ -264,24 +301,26 @@ small {
 <div class="container">
 
 <header>
-  <h1>❄️ نظام البركة للمجمدات</h1>
+<h1>❄️ نظام البركة للمجمدات</h1>
 </header>
 
 <div class="nav-tabs" id="navTabsContainer">
-  <button class="tab-btn active"
-    onclick="switchTab('add-product',this)">➕ إضافة منتج</button>
 
-  <button class="tab-btn"
-    onclick="switchTab('all-inventory',this)">📦 المخزون والأقسام</button>
+<button class="tab-btn active"
+onclick="switchTab('add-product',this)">➕ إضافة منتج</button>
 
-  <button class="tab-btn"
-    onclick="switchTab('pos',this)">🛒 الكاشير السريع</button>
+<button class="tab-btn"
+onclick="switchTab('all-inventory',this)">📦 المخزون والأقسام</button>
 
-  <button class="tab-btn"
-    onclick="switchTab('expiring',this)">⚠️ تنبيهات الصلاحية</button>
+<button class="tab-btn"
+onclick="switchTab('pos',this)">🛒 الكاشير السريع</button>
 
-  <button class="tab-btn"
-    onclick="switchTab('reports',this)">📊 الأرباح والتقارير</button>
+<button class="tab-btn"
+onclick="switchTab('expiring',this)">⚠️ تنبيهات الصلاحية</button>
+
+<button class="tab-btn"
+onclick="switchTab('reports',this)">📊 الأرباح والتقارير</button>
+
 </div>
 
 
@@ -316,12 +355,9 @@ placeholder="اكتب اسم القسم الجديد">
 
 <div class="form-group">
 <label>اسم المنتج</label>
-
 <input type="text" id="name"
 list="productNameSuggestions"
-required
-placeholder="اكتب اسم المنتج">
-
+required placeholder="اكتب اسم المنتج">
 <datalist id="productNameSuggestions"></datalist>
 </div>
 
@@ -350,14 +386,14 @@ required min="1">
 
 <div class="form-group">
 <label>سعر الشراء</label>
-<input type="number" step="0.5"
-id="buyPrice" required min="0" step="0.01">
+<input type="number" id="buyPrice"
+required min="0" step="0.01">
 </div>
 
 <div class="form-group">
 <label>سعر البيع</label>
-<input type="number" step="0.5"
-id="sellPrice" required min="0" step="0.01">
+<input type="number" id="sellPrice"
+required min="0" step="0.01">
 </div>
 
 <button type="submit" class="btn-main">
@@ -382,16 +418,12 @@ id="sellPrice" required min="0" step="0.01">
 
 <select id="filterByCategorySelect"
 onchange="renderFilteredInventory()">
-
 <option value="ALL">عرض كل الأقسام</option>
-
 </select>
 </div>
 
 <div class="table-responsive">
-
 <table>
-
 <thead>
 <tr>
 <th>القسم</th>
@@ -409,9 +441,9 @@ onchange="renderFilteredInventory()">
 <tbody id="allInventoryBody">
 <tr><td colspan="9">جاري التحميل...</td></tr>
 </tbody>
-
 </table>
 </div>
+
 </div>
 </div>
 
@@ -436,8 +468,10 @@ oninput="filterPosDropdown()"
 onfocus="filterPosDropdown()"
 aria-label="ابحث باسم القسم">
 
-<div id="posCategorySuggestions" class="pos-suggestions"
-role="listbox" aria-label="اقتراحات الأقسام"></div>
+<div id="posCategorySuggestions"
+class="pos-suggestions"
+role="listbox"
+aria-label="اقتراحات الأقسام"></div>
 
 </div>
 
@@ -449,16 +483,13 @@ role="listbox" aria-label="اقتراحات الأقسام"></div>
 
 <select id="sellSelectBatch"
 required onchange="calculatePosTotal()">
-
 <option value="">-- اختر الدفعة --</option>
-
 </select>
 
 </div>
 
 <div class="form-group">
 <label>الكمية المباعة</label>
-
 <input type="number"
 step="0.001"
 id="sellQuantity"
@@ -470,7 +501,6 @@ oninput="calculatePosTotal()">
 
 <div class="form-group">
 <label>إجمالي المطلوب (ج.م)</label>
-
 <input type="text"
 id="posTotalDisplay"
 readonly
@@ -496,9 +526,7 @@ style="background:#e9ecef;font-weight:bold;color:green">
 <h3>⚠️ المنتجات القريبة من انتهاء الصلاحية</h3>
 
 <div class="table-responsive">
-
 <table>
-
 <thead>
 <tr>
 <th>القسم</th>
@@ -512,9 +540,9 @@ style="background:#e9ecef;font-weight:bold;color:green">
 <tbody id="expiringBody">
 <tr><td colspan="5">جاري الفحص...</td></tr>
 </tbody>
-
 </table>
 </div>
+
 </div>
 </div>
 
@@ -542,15 +570,10 @@ style="background:#e9ecef;font-weight:bold;color:green">
 
 </div>
 
-
 <div class="card">
-
 <div class="form-group">
-
 <label for="reportMonth">الشهر المطلوب عرضه</label>
-
 <input type="month" id="reportMonth">
-
 </div>
 </div>
 
@@ -562,9 +585,7 @@ style="background:#e9ecef;font-weight:bold;color:green">
 <h3>📊 سجل أرباح جميع الشهور</h3>
 
 <div class="table-responsive">
-
 <table>
-
 <thead>
 <tr>
 <th>الشهر</th>
@@ -577,42 +598,35 @@ style="background:#e9ecef;font-weight:bold;color:green">
 <tbody id="monthlyProfitsBody">
 <tr><td colspan="4">جاري تحميل التقارير...</td></tr>
 </tbody>
-
 </table>
 </div>
+
 </div>
 
 
 <!-- المصروفات -->
 
-<div class="card"
-style="border-top:4px solid var(--danger)">
+<div class="card" style="border-top:4px solid var(--danger)">
 
 <h3>💸 خصم مصروفات من أرباح الشهر</h3>
 
 <form id="deductProfitForm" class="form-grid">
 
 <div class="form-group">
-
 <label>المبلغ المراد خصمه</label>
-
 <input type="number"
 step="0.5"
 id="deductAmount"
 required
 min="0.5"
 placeholder="مثال: 150">
-
 </div>
 
 <div class="form-group">
-
 <label>سبب الخصم</label>
-
 <input type="text"
 id="deductReason"
 placeholder="مثال: فاتورة كهرباء">
-
 </div>
 
 <button type="submit" class="btn-danger-custom">
@@ -630,9 +644,7 @@ placeholder="مثال: فاتورة كهرباء">
 <h3>📊 الأرباح ورأس المال بالأقسام</h3>
 
 <div class="table-responsive">
-
 <table>
-
 <thead>
 <tr>
 <th>القسم</th>
@@ -642,9 +654,9 @@ placeholder="مثال: فاتورة كهرباء">
 </thead>
 
 <tbody id="categoryReportsBody"></tbody>
-
 </table>
 </div>
+
 </div>
 
 
@@ -661,9 +673,7 @@ placeholder="مثال: فاتورة كهرباء">
 <button type="button"
 class="btn-danger-custom"
 onclick="resetAllData()">
-
 تصفير كل البيانات
-
 </button>
 
 </div>
@@ -812,9 +822,7 @@ category === "__NEW__" ? "flex" : "none";
 
 
 window.onCategoryChange = function() {
-
 refreshProductUnits();
-
 };
 
 
@@ -826,16 +834,28 @@ document.getElementById("reportMonth").value =
 `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
 
 
-// تحديث اقتراحات أسماء المنتجات في شاشة إضافة المنتج
+// تحديث اقتراحات أسماء المنتجات
+
 function updateAutocompleteLists() {
- const namesList = document.getElementById("productNameSuggestions");
- const names = [...new Set(localBatches.map(p=>p.name).filter(Boolean))].sort();
- namesList.innerHTML = "";
- names.forEach(name => {
-   const option = document.createElement("option");
-   option.value = name;
-   namesList.appendChild(option);
- });
+
+const namesList = document.getElementById("productNameSuggestions");
+
+const names = [
+...new Set(localBatches.map(p=>p.name).filter(Boolean))
+].sort();
+
+namesList.innerHTML = "";
+
+names.forEach(name => {
+
+const option = document.createElement("option");
+
+option.value = name;
+
+namesList.appendChild(option);
+
+});
+
 }
 
 
@@ -894,6 +914,17 @@ pDate.setMonth(pDate.getMonth()+shelfMonths);
 const expDateStr =
 `${pDate.getFullYear()}-${String(pDate.getMonth()+1).padStart(2,"0")}-${String(pDate.getDate()).padStart(2,"0")}`;
 
+const buyPrice =
+parseFloat(document.getElementById("buyPrice").value);
+
+const sellPrice =
+parseFloat(document.getElementById("sellPrice").value);
+
+if(!Number.isFinite(buyPrice) || buyPrice < 0 ||
+   !Number.isFinite(sellPrice) || sellPrice < 0) {
+return alert("تأكد من إدخال أسعار صحيحة.");
+}
+
 try {
 
 await addDoc(productsRef,{
@@ -904,13 +935,8 @@ quantity:totalQty,
 unit:unit,
 prodDate:prodDateStr,
 expDate:expDateStr,
-
-buyPrice:
-parseFloat(document.getElementById("buyPrice").value) || 0,
-
-sellPrice:
-parseFloat(document.getElementById("sellPrice").value) || 0,
-
+buyPrice:buyPrice,
+sellPrice:sellPrice,
 createdAt:new Date()
 
 });
@@ -955,13 +981,9 @@ try {
 await addDoc(salesRef,{
 
 category:"مصروفات",
-
 productName:`خصم: ${reason}`,
-
 soldQty:0,
-
 profit:-amount,
-
 soldAt:new Date()
 
 });
@@ -1172,14 +1194,17 @@ ${item.quantity<=2
 </td>
 
 <td>
-<button class="btn-main" type="button" style="margin:3px;padding:6px 10px"
+
+<button class="btn-edit" type="button"
 onclick="editBatch('${item.id}')">
-تعديل
+✏️ تعديل
 </button>
+
 <button class="btn-delete" type="button"
 onclick="deleteBatch('${item.id}')">
-حذف
+🗑️ حذف
 </button>
+
 </td>
 
 `;
@@ -1191,108 +1216,164 @@ tbody.appendChild(tr);
 };
 
 
-// البحث في الكاشير مع اقتراح الأقسام حسب بداية الاسم
+// البحث في الكاشير واقتراح الأقسام
+
 window.filterPosDropdown = function() {
 
- const searchInput = document.getElementById("searchPos");
- const rawSearch = searchInput?.value || "";
- const searchVal = normalizeArabicSearch(rawSearch);
- const suggestionsBox = document.getElementById("posCategorySuggestions");
+const searchInput = document.getElementById("searchPos");
 
- // الأقسام الموجودة فعلياً في المخزون فقط
- const categories = [...new Set(
-   localBatches
-     .filter(item => item.quantity > 0 && item.category)
-     .map(item => item.category)
- )].sort((a,b) =>
-   normalizeArabicSearch(a).localeCompare(normalizeArabicSearch(b),"ar")
- );
+const rawSearch = searchInput?.value || "";
 
- // عند الكتابة، اقترح الأقسام التي يبدأ اسمها بما كتبه المستخدم
- suggestionsBox.innerHTML = "";
- if(searchVal) {
-   const matches = categories.filter(category =>
-     normalizeArabicSearch(category).startsWith(searchVal)
-   );
+const searchVal = normalizeArabicSearch(rawSearch);
 
-   matches.forEach(category => {
-     const button = document.createElement("button");
-     button.type = "button";
-     button.className = "pos-suggestion-item";
-     button.setAttribute("role", "option");
-     button.textContent = category;
-     button.addEventListener("click", () => {
-       searchInput.value = category;
-       suggestionsBox.style.display = "none";
-       filterPosDropdown();
-       searchInput.focus();
-     });
-     suggestionsBox.appendChild(button);
-   });
+const suggestionsBox =
+document.getElementById("posCategorySuggestions");
 
-   suggestionsBox.style.display = matches.length ? "block" : "none";
- } else {
-   suggestionsBox.style.display = "none";
- }
+const categories = [...new Set(
 
- const select = document.getElementById("sellSelectBatch");
- const previousValue = select.value;
- select.innerHTML =
-   '<option value="">-- اختر الدفعة (القسم ثم المنتج) --</option>';
+localBatches
+.filter(item => item.quantity > 0 && item.category)
+.map(item => item.category)
 
- const sortedBatches = [...localBatches].sort((a,b) => {
-   const categoryCompare =
-     normalizeArabicSearch(a.category)
-       .localeCompare(normalizeArabicSearch(b.category),"ar");
-   if(categoryCompare !== 0) return categoryCompare;
-   return normalizeArabicSearch(a.name)
-     .localeCompare(normalizeArabicSearch(b.name),"ar");
- });
+)].sort((a,b) =>
+normalizeArabicSearch(a).localeCompare(
+normalizeArabicSearch(b),"ar"
+)
+);
 
- sortedBatches.forEach(item => {
-   if(item.quantity > 0) {
-     const normalizedCategory = normalizeArabicSearch(item.category);
-     const normalizedName = normalizeArabicSearch(item.name);
+suggestionsBox.innerHTML = "";
 
-     // لو النص يطابق بداية قسم، اعرض القسم كله؛ وإلا ابحث داخل القسم والمنتج
-     const matchingCategory = categories.some(category =>
-       normalizeArabicSearch(category).startsWith(searchVal) &&
-       normalizeArabicSearch(category) === normalizedCategory
-     );
+if(searchVal) {
 
-     const matchesSearch = !searchVal ||
-       matchingCategory ||
-       normalizedCategory.includes(searchVal) ||
-       normalizedName.includes(searchVal);
+const matches = categories.filter(category =>
+normalizeArabicSearch(category).startsWith(searchVal)
+);
 
-     if(matchesSearch) {
-       const opt = document.createElement("option");
-       opt.value = item.id;
-       opt.textContent =
-         `[${item.category}] ➔ ${item.name} | متبقي: ${item.quantity} ${item.unit || "وحدة"} | سعر الوحدة: ${item.sellPrice}ج | ينتهي: ${item.expDate || "-"}`;
-       select.appendChild(opt);
-     }
-   }
- });
+matches.forEach(category => {
 
- // احتفظ بالدفعة المختارة إذا كانت ما زالت ضمن نتائج البحث
- if(previousValue && [...select.options].some(option => option.value === previousValue)) {
-   select.value = previousValue;
- }
+const button = document.createElement("button");
 
- calculatePosTotal();
+button.type = "button";
+
+button.className = "pos-suggestion-item";
+
+button.setAttribute("role", "option");
+
+button.textContent = category;
+
+button.addEventListener("click", () => {
+
+searchInput.value = category;
+
+suggestionsBox.style.display = "none";
+
+filterPosDropdown();
+
+searchInput.focus();
+
+});
+
+suggestionsBox.appendChild(button);
+
+});
+
+suggestionsBox.style.display =
+matches.length ? "block" : "none";
+
+} else {
+
+suggestionsBox.style.display = "none";
+
+}
+
+const select = document.getElementById("sellSelectBatch");
+
+const previousValue = select.value;
+
+select.innerHTML =
+'<option value="">-- اختر الدفعة (القسم ثم المنتج) --</option>';
+
+const sortedBatches = [...localBatches].sort((a,b) => {
+
+const categoryCompare =
+normalizeArabicSearch(a.category)
+.localeCompare(normalizeArabicSearch(b.category),"ar");
+
+if(categoryCompare !== 0) return categoryCompare;
+
+return normalizeArabicSearch(a.name)
+.localeCompare(normalizeArabicSearch(b.name),"ar");
+
+});
+
+sortedBatches.forEach(item => {
+
+if(item.quantity > 0) {
+
+const normalizedCategory =
+normalizeArabicSearch(item.category);
+
+const normalizedName =
+normalizeArabicSearch(item.name);
+
+const matchingCategory = categories.some(category =>
+normalizeArabicSearch(category).startsWith(searchVal) &&
+normalizeArabicSearch(category) === normalizedCategory
+);
+
+const matchesSearch = !searchVal ||
+matchingCategory ||
+normalizedCategory.includes(searchVal) ||
+normalizedName.includes(searchVal);
+
+if(matchesSearch) {
+
+const opt = document.createElement("option");
+
+opt.value = item.id;
+
+opt.textContent =
+`[${item.category}] ➔ ${item.name} | متبقي: ${item.quantity} ${item.unit || "وحدة"} | سعر الوحدة: ${item.sellPrice}ج | ينتهي: ${item.expDate || "-"}`;
+
+select.appendChild(opt);
+
+}
+
+}
+
+});
+
+if(previousValue &&
+[...select.options].some(option => option.value === previousValue)) {
+
+select.value = previousValue;
+
+}
+
+calculatePosTotal();
+
 };
 
+
 // إخفاء الاقتراحات عند الضغط خارج خانة البحث
+
 document.addEventListener("click", event => {
- const searchInput = document.getElementById("searchPos");
- const suggestionsBox = document.getElementById("posCategorySuggestions");
- if(searchInput && suggestionsBox &&
-    !searchInput.contains(event.target) &&
-    !suggestionsBox.contains(event.target)) {
-   suggestionsBox.style.display = "none";
- }
+
+const searchInput = document.getElementById("searchPos");
+
+const suggestionsBox =
+document.getElementById("posCategorySuggestions");
+
+if(searchInput && suggestionsBox &&
+!searchInput.contains(event.target) &&
+!suggestionsBox.contains(event.target)) {
+
+suggestionsBox.style.display = "none";
+
+}
+
 });
+
 
 // حساب إجمالي الكاشير
 
@@ -1388,38 +1469,120 @@ alert("خطأ أثناء البيع: "+err.message);
 });
 
 
-// تعديل بيانات الدفعة: اسم المنتج وسعر الشراء وسعر البيع
+// ========================================
+// تعديل بيانات الدفعة بالكامل
+// الاسم + سعر الشراء + سعر البيع + الكمية
+// ========================================
+
 window.editBatch = async function(id) {
-  const item = localBatches.find(p => p.id === id);
-  if(!item) return alert("لم يتم العثور على المنتج المطلوب.");
 
-  const newNameInput = prompt("اسم المنتج:", item.name || "");
-  if(newNameInput === null) return;
-  const newName = newNameInput.trim();
-  if(!newName) return alert("اسم المنتج لا يمكن أن يكون فارغاً.");
+const item = localBatches.find(p => p.id === id);
 
-  const buyInput = prompt("سعر الشراء الحالي (جنيه):", item.buyPrice ?? 0);
-  if(buyInput === null) return;
-  const newBuyPrice = Number(buyInput);
-  if(buyInput.trim() === "" || !Number.isFinite(newBuyPrice) || newBuyPrice < 0)
-    return alert("سعر الشراء غير صحيح.");
+if(!item) {
+return alert("لم يتم العثور على المنتج المطلوب.");
+}
 
-  const sellInput = prompt("سعر البيع الحالي (جنيه):", item.sellPrice ?? 0);
-  if(sellInput === null) return;
-  const newSellPrice = Number(sellInput);
-  if(sellInput.trim() === "" || !Number.isFinite(newSellPrice) || newSellPrice < 0)
-    return alert("سعر البيع غير صحيح.");
 
-  try {
-    await updateDoc(doc(db,"products",id), {
-      name: newName,
-      buyPrice: newBuyPrice,
-      sellPrice: newSellPrice
-    });
-    alert("تم تعديل اسم المنتج والأسعار بنجاح.");
-  } catch(err) {
-    alert("تعذر تعديل المنتج: " + err.message);
-  }
+// تعديل اسم المنتج
+
+const newNameInput = prompt(
+"اسم المنتج:",
+item.name || ""
+);
+
+if(newNameInput === null) return;
+
+const newName = newNameInput.trim();
+
+if(!newName) {
+return alert("اسم المنتج لا يمكن أن يكون فارغاً.");
+}
+
+
+// تعديل سعر الشراء
+
+const buyInput = prompt(
+"سعر الشراء الحالي (جنيه):",
+item.buyPrice ?? 0
+);
+
+if(buyInput === null) return;
+
+const newBuyPrice = Number(buyInput);
+
+if(
+buyInput.trim() === "" ||
+!Number.isFinite(newBuyPrice) ||
+newBuyPrice < 0
+) {
+return alert("سعر الشراء غير صحيح.");
+}
+
+
+// تعديل سعر البيع
+
+const sellInput = prompt(
+"سعر البيع الحالي (جنيه):",
+item.sellPrice ?? 0
+);
+
+if(sellInput === null) return;
+
+const newSellPrice = Number(sellInput);
+
+if(
+sellInput.trim() === "" ||
+!Number.isFinite(newSellPrice) ||
+newSellPrice < 0
+) {
+return alert("سعر البيع غير صحيح.");
+}
+
+
+// تعديل الكمية المتبقية
+
+const quantityInput = prompt(
+`الكمية المتبقية حالياً (${item.unit || "وحدة"}):`,
+item.quantity ?? 0
+);
+
+if(quantityInput === null) return;
+
+const newQuantity = Number(quantityInput);
+
+if(
+quantityInput.trim() === "" ||
+!Number.isFinite(newQuantity) ||
+newQuantity < 0
+) {
+return alert("الكمية غير صحيحة. يجب أن تكون صفراً أو أكبر.");
+}
+
+
+// حفظ التعديلات في Firebase
+
+try {
+
+await updateDoc(doc(db,"products",id),{
+
+name:newName,
+
+buyPrice:newBuyPrice,
+
+sellPrice:newSellPrice,
+
+quantity:Number(newQuantity.toFixed(3))
+
+});
+
+alert("✅ تم تعديل اسم المنتج والأسعار والكمية بنجاح.");
+
+} catch(err) {
+
+alert("تعذر تعديل المنتج: " + err.message);
+
+}
+
 };
 
 
@@ -1432,6 +1595,8 @@ if(confirm("هل أنت متأكد من حذف هذه الدفعة؟")) {
 try {
 
 await deleteDoc(doc(db,"products",id));
+
+alert("تم حذف الدفعة بنجاح.");
 
 } catch(err) {
 
