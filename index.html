@@ -219,42 +219,6 @@ th {
   cursor:pointer;
 }
 
-/* أزرار الأقسام */
-.pos-category-picker {
-  display:flex;
-  flex-wrap:wrap;
-  gap:10px;
-  margin:12px 0 18px;
-}
-
-.pos-category-btn {
-  border:1px solid #cbd5e1;
-  background:#f8fafc;
-  color:#334155;
-  border-radius:9px;
-  padding:11px 16px;
-  font-weight:bold;
-  cursor:pointer;
-  transition:.15s ease;
-}
-
-.pos-category-btn:hover {
-  border-color:var(--primary);
-  background:#eef5ff;
-}
-
-.pos-category-btn.active {
-  background:var(--primary);
-  border-color:var(--primary);
-  color:#fff;
-}
-
-.pos-category-hint {
-  color:#64748b;
-  font-size:.9rem;
-  margin:4px 0 8px;
-}
-
 small {
   color:#666;
   margin-top:5px;
@@ -271,33 +235,22 @@ small {
 </header>
 
 <div class="nav-tabs" id="navTabsContainer">
+  <button class="tab-btn active"
+    onclick="switchTab('add-product',this)">➕ إضافة منتج</button>
 
-<button class="tab-btn active"
-onclick="switchTab('add-product',this)">
-➕ إضافة منتج
-</button>
+  <button class="tab-btn"
+    onclick="switchTab('all-inventory',this)">📦 المخزون والأقسام</button>
 
-<button class="tab-btn"
-onclick="switchTab('all-inventory',this)">
-📦 المخزون والأقسام
-</button>
+  <button class="tab-btn"
+    onclick="switchTab('pos',this)">🛒 الكاشير السريع</button>
 
-<button class="tab-btn"
-onclick="switchTab('pos',this)">
-🛒 الكاشير السريع
-</button>
+  <button class="tab-btn"
+    onclick="switchTab('expiring',this)">⚠️ تنبيهات الصلاحية</button>
 
-<button class="tab-btn"
-onclick="switchTab('expiring',this)">
-⚠️ تنبيهات الصلاحية
-</button>
-
-<button class="tab-btn"
-onclick="switchTab('reports',this)">
-📊 الأرباح والتقارير
-</button>
-
+  <button class="tab-btn"
+    onclick="switchTab('reports',this)">📊 الأرباح والتقارير</button>
 </div>
+
 
 <!-- إضافة منتج -->
 
@@ -313,32 +266,25 @@ onclick="switchTab('reports',this)">
 <label>القسم الرئيسي</label>
 
 <select id="category" onchange="onCategoryChange()" required>
-
 <option value="لحوم وكبدة">لحوم وكبدة</option>
 <option value="أسماك ورنجة">أسماك ورنجة</option>
 <option value="توابل">توابل</option>
 <option value="بيض">بيض</option>
 <option value="مصنعات وبطاطس">مصنعات وبطاطس</option>
 <option value="__NEW__">+ إضافة قسم جديد...</option>
-
 </select>
 </div>
 
 <div class="form-group" id="newCategoryGroup" style="display:none">
-
 <label>اسم القسم الجديد</label>
-
-<input type="text"
-id="customCategoryName"
+<input type="text" id="customCategoryName"
 placeholder="اكتب اسم القسم الجديد">
-
 </div>
 
 <div class="form-group">
 <label>اسم المنتج</label>
 
-<input type="text"
-id="name"
+<input type="text" id="name"
 list="productNameSuggestions"
 required
 placeholder="اكتب اسم المنتج">
@@ -348,57 +294,37 @@ placeholder="اكتب اسم المنتج">
 
 <div class="form-group">
 <label>وحدة قياس المنتج</label>
-
 <select id="productUnit" required></select>
-
 <small id="unitHelp"></small>
 </div>
 
 <div class="form-group">
 <label>الكمية المضافة</label>
-
-<input type="number"
-step="0.001"
-id="productQuantity"
-required
-min="0.001">
+<input type="number" step="0.001"
+id="productQuantity" required min="0.001">
 </div>
 
 <div class="form-group">
 <label>تاريخ الإنتاج</label>
-
-<input type="date"
-id="prodDate"
-required>
+<input type="date" id="prodDate" required>
 </div>
 
 <div class="form-group">
 <label>مدة الصلاحية بالأشهر</label>
-
-<input type="number"
-id="shelfMonths"
-required
-min="1">
+<input type="number" id="shelfMonths"
+required min="1">
 </div>
 
 <div class="form-group">
 <label>سعر الشراء</label>
-
-<input type="number"
-step="0.5"
-id="buyPrice"
-required
-min="0">
+<input type="number" step="0.01"
+id="buyPrice" required min="0">
 </div>
 
 <div class="form-group">
 <label>سعر البيع</label>
-
-<input type="number"
-step="0.5"
-id="sellPrice"
-required
-min="0">
+<input type="number" step="0.01"
+id="sellPrice" required min="0">
 </div>
 
 <button type="submit" class="btn-main">
@@ -409,30 +335,16 @@ min="0">
 </div>
 </div>
 
+
 <!-- المخزون -->
 
 <div id="all-inventory" class="section-content">
 
 <div class="card">
 
-<h3>📦 متابعة المخزون والأقسام</h3>
+<h3>📦 متابعة المخزون وفلترة الأقسام</h3>
 
 <div class="form-group">
-
-<label>اختار القسم لعرض منتجاته</label>
-
-<p class="pos-category-hint">
-اضغط على القسم لعرض كل المنتجات والدفعات التابعة له.
-</p>
-
-<div id="inventoryCategoryPicker"
-class="pos-category-picker">
-</div>
-
-</div>
-
-<div class="form-group">
-
 <label>عرض حسب القسم</label>
 
 <select id="filterByCategorySelect"
@@ -441,7 +353,6 @@ onchange="renderFilteredInventory()">
 <option value="ALL">عرض كل الأقسام</option>
 
 </select>
-
 </div>
 
 <div class="table-responsive">
@@ -463,15 +374,14 @@ onchange="renderFilteredInventory()">
 </thead>
 
 <tbody id="allInventoryBody">
-<tr>
-<td colspan="9">جاري التحميل...</td>
-</tr>
+<tr><td colspan="9">جاري التحميل...</td></tr>
 </tbody>
 
 </table>
 </div>
 </div>
 </div>
+
 
 <!-- الكاشير -->
 
@@ -483,15 +393,15 @@ onchange="renderFilteredInventory()">
 
 <div class="form-group" style="margin-bottom:15px">
 
-<label>اختار القسم</label>
+<label>ابحث باسم القسم أو المنتج</label>
 
-<p class="pos-category-hint">
-اختار القسم لعرض المنتجات المتاحة فيه.
-</p>
+<input type="text"
+id="searchPos"
+list="posSearchSuggestions"
+placeholder="اكتب اسم المنتج أو القسم..."
+oninput="filterPosDropdown()">
 
-<div id="posCategoryPicker"
-class="pos-category-picker">
-</div>
+<datalist id="posSearchSuggestions"></datalist>
 
 </div>
 
@@ -502,8 +412,7 @@ class="pos-category-picker">
 <label>اختر الدفعة (القسم ثم المنتج)</label>
 
 <select id="sellSelectBatch"
-required
-onchange="calculatePosTotal()">
+required onchange="calculatePosTotal()">
 
 <option value="">-- اختر الدفعة --</option>
 
@@ -541,6 +450,7 @@ style="background:#e9ecef;font-weight:bold;color:green">
 </div>
 </div>
 
+
 <!-- الصلاحية -->
 
 <div id="expiring" class="section-content">
@@ -564,15 +474,14 @@ style="background:#e9ecef;font-weight:bold;color:green">
 </thead>
 
 <tbody id="expiringBody">
-<tr>
-<td colspan="5">جاري الفحص...</td>
-</tr>
+<tr><td colspan="5">جاري الفحص...</td></tr>
 </tbody>
 
 </table>
 </div>
 </div>
 </div>
+
 
 <!-- التقارير -->
 
@@ -597,6 +506,7 @@ style="background:#e9ecef;font-weight:bold;color:green">
 
 </div>
 
+
 <div class="card">
 
 <div class="form-group">
@@ -607,6 +517,7 @@ style="background:#e9ecef;font-weight:bold;color:green">
 
 </div>
 </div>
+
 
 <!-- سجل أرباح جميع الشهور -->
 
@@ -628,18 +539,18 @@ style="background:#e9ecef;font-weight:bold;color:green">
 </thead>
 
 <tbody id="monthlyProfitsBody">
-<tr>
-<td colspan="4">جاري تحميل التقارير...</td>
-</tr>
+<tr><td colspan="4">جاري تحميل التقارير...</td></tr>
 </tbody>
 
 </table>
 </div>
 </div>
 
+
 <!-- المصروفات -->
 
-<div class="card" style="border-top:4px solid var(--danger)">
+<div class="card"
+style="border-top:4px solid var(--danger)">
 
 <h3>💸 خصم مصروفات من أرباح الشهر</h3>
 
@@ -675,6 +586,7 @@ placeholder="مثال: فاتورة كهرباء">
 </form>
 </div>
 
+
 <!-- أرباح الأقسام -->
 
 <div class="card">
@@ -699,6 +611,7 @@ placeholder="مثال: فاتورة كهرباء">
 </div>
 </div>
 
+
 <!-- تصفير البيانات -->
 
 <div class="card" style="border:2px solid var(--danger)">
@@ -712,7 +625,9 @@ placeholder="مثال: فاتورة كهرباء">
 <button type="button"
 class="btn-danger-custom"
 onclick="resetAllData()">
+
 تصفير كل البيانات
+
 </button>
 
 </div>
@@ -720,6 +635,7 @@ onclick="resetAllData()">
 </div>
 
 </div>
+
 
 <script type="module">
 
@@ -736,6 +652,9 @@ doc,
 updateDoc
 }
 from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+
+// إعداد Firebase
 
 const firebaseConfig = {
 apiKey:"AIzaSyDd1u5PvoSgxc_RPh5eIerP_4WBOMsMtAk",
@@ -756,8 +675,11 @@ const salesRef = collection(db,"sales");
 let localBatches = [];
 let allSales = [];
 
-// توحيد الحروف العربية
+
+// توحيد الحروف العربية في البحث
+
 function normalizeArabicSearch(value) {
+
 return String(value || "")
 .normalize("NFD")
 .replace(/[\u064B-\u065F\u0670]/g,"")
@@ -770,9 +692,12 @@ return String(value || "")
 .toLowerCase()
 .trim()
 .replace(/\s+/g," ");
+
 }
 
+
 // التنقل بين الصفحات
+
 window.switchTab = function(tabId,btnElement) {
 
 document.querySelectorAll(".section-content")
@@ -789,32 +714,52 @@ if(btnElement) btnElement.classList.add("active");
 
 };
 
+
 // وحدات القياس حسب القسم
+
 const categoryUnits = {
+
 "لحوم وكبدة":["كيلو"],
+
 "أسماك ورنجة":["كيلو"],
+
 "توابل":["عبوة","كيس","علبة"],
+
 "بيض":["طبق","كرتونة","بيضة"],
+
 "مصنعات وبطاطس":["كيلو","كيس","قطعة","عبوة"]
+
 };
 
+
 function getUnitsForCategory(category) {
+
 return categoryUnits[category] || ["قطعة","عبوة","كيس"];
+
 }
+
+
+// تحديث وحدات القياس
 
 function refreshProductUnits(preferredUnit="") {
 
 const category = document.getElementById("category").value;
+
 const unitSelect = document.getElementById("productUnit");
+
 const units = getUnitsForCategory(category);
 
 unitSelect.innerHTML = "";
 
 units.forEach(unit=>{
+
 const option = document.createElement("option");
+
 option.value = unit;
 option.textContent = unit;
+
 unitSelect.appendChild(option);
+
 });
 
 if(preferredUnit && units.includes(preferredUnit)) {
@@ -829,37 +774,72 @@ category === "__NEW__" ? "flex" : "none";
 
 }
 
+
 window.onCategoryChange = function() {
+
 refreshProductUnits();
+
 };
 
+
 // تاريخ الشهر الحالي
+
 const now = new Date();
 
 document.getElementById("reportMonth").value =
 `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
 
-// اقتراحات أسماء المنتجات
+
+// اقتراحات المنتجات والأقسام
+
 function updateAutocompleteLists() {
 
 const namesList =
 document.getElementById("productNameSuggestions");
 
+const posList =
+document.getElementById("posSearchSuggestions");
+
 const names = [
-...new Set(localBatches.map(p=>p.name).filter(Boolean))
+...new Set(
+localBatches.map(p=>p.name).filter(Boolean)
+)
+].sort();
+
+const categories = [
+...new Set(
+localBatches.map(p=>p.category).filter(Boolean)
+)
 ].sort();
 
 namesList.innerHTML = "";
+posList.innerHTML = "";
 
 names.forEach(name=>{
+
 const option = document.createElement("option");
+
 option.value = name;
+
 namesList.appendChild(option);
+
+});
+
+[...categories,...names].forEach(value=>{
+
+const option = document.createElement("option");
+
+option.value = value;
+
+posList.appendChild(option);
+
 });
 
 }
 
+
 // إضافة منتج
+
 document.getElementById("productForm")
 .addEventListener("submit",async e=>{
 
@@ -940,24 +920,7 @@ document.getElementById("newCategoryGroup").style.display="none";
 
 onCategoryChange();
 
-selectedInventoryCategory = selectedCat;
-
-const inventoryFilter =
-document.getElementById("filterByCategorySelect");
-
-if(inventoryFilter) {
-inventoryFilter.value = selectedCat;
-}
-
-switchTab(
-"all-inventory",
-document.querySelector('.tab-btn[onclick*="all-inventory"]')
-);
-
-renderInventoryCategoryPicker();
-renderFilteredInventory();
-
-alert("تم حفظ الدفعة بنجاح! ستجد كل منتجات قسم " + selectedCat + " في صفحة المخزون.");
+alert("تم حفظ الدفعة بنجاح!");
 
 } catch(err) {
 
@@ -967,7 +930,9 @@ alert("خطأ في الحفظ: "+err.message);
 
 });
 
+
 // خصم المصروفات
+
 document.getElementById("deductProfitForm")
 .addEventListener("submit",async e=>{
 
@@ -989,9 +954,13 @@ try {
 await addDoc(salesRef,{
 
 category:"مصروفات",
+
 productName:`خصم: ${reason}`,
+
 soldQty:0,
+
 profit:-amount,
+
 soldAt:new Date()
 
 });
@@ -1006,1058 +975,779 @@ alert("خطأ أثناء الخصم: "+err.message);
 
 }
 
-});// ==========================================
-// الجزء الثاني: الأقسام والمخزون وتعديل المنتجات
-// ==========================================
+});
 
-let selectedInventoryCategory = "ALL";
-let selectedPosCategory = "ALL";
 
-// استخراج الأقسام تلقائياً من المنتجات
-function getAllCategories() {
-    return [...new Set(
-        localBatches
-            .map(p => String(p.category || "").trim())
-            .filter(Boolean)
-    )].sort((a, b) => a.localeCompare(b, "ar"));
-}
+// تحميل المنتجات من Firebase
 
-// إنشاء أزرار الأقسام
-function createCategoryButtons(containerId, selectedCategory, callback) {
+onSnapshot(productsRef,snapshot=>{
 
-    const container = document.getElementById(containerId);
+localBatches=[];
 
-    if (!container) return;
+snapshot.forEach(docSnap=>{
 
-    container.innerHTML = "";
+const item = docSnap.data();
 
-    const categories = getAllCategories();
+item.id = docSnap.id;
 
-    const allButton = document.createElement("button");
+localBatches.push(item);
 
-    allButton.type = "button";
-    allButton.className =
-        "pos-category-btn" +
-        (selectedCategory === "ALL" ? " active" : "");
+});
 
-    allButton.textContent = "كل الأقسام";
+updateCategorySelects();
 
-    allButton.onclick = () => callback("ALL");
+updateAutocompleteLists();
 
-    container.appendChild(allButton);
+renderFilteredInventory();
 
-    categories.forEach(category => {
+filterPosDropdown();
 
-        const button = document.createElement("button");
+renderExpiringProducts();
 
-        button.type = "button";
+updateReports();
 
-        button.className =
-            "pos-category-btn" +
-            (selectedCategory === category ? " active" : "");
+});
 
-        button.textContent = category;
 
-        button.onclick = () => callback(category);
+// تحميل المبيعات والمصروفات
 
-        container.appendChild(button);
+onSnapshot(salesRef,snapshot=>{
 
-    });
+allSales=[];
+
+snapshot.forEach(docSnap=>{
+
+const sale = docSnap.data();
+
+sale.id = docSnap.id;
+
+if(sale.soldAt && typeof sale.soldAt.toDate === "function") {
+
+sale.soldAtDate = sale.soldAt.toDate();
+
+} else {
+
+sale.soldAtDate = null;
 
 }
 
-// تحديث أزرار المخزون
-function renderInventoryCategoryPicker() {
+allSales.push(sale);
 
-    createCategoryButtons(
-        "inventoryCategoryPicker",
-        selectedInventoryCategory,
-        category => {
+});
 
-            selectedInventoryCategory = category;
+updateReports();
 
-            const filter =
-                document.getElementById("filterByCategorySelect");
+});
 
-            if (filter) {
-                filter.value = category;
-            }
 
-            renderInventoryCategoryPicker();
-            renderFilteredInventory();
+// تحديث الأقسام
 
-        }
-    );
+function updateCategorySelects() {
 
-}
+const addSelect = document.getElementById("category");
 
-// تحديث أزرار الكاشير
-function renderPosCategoryPicker() {
+const filterSelect =
+document.getElementById("filterByCategorySelect");
 
-    createCategoryButtons(
-        "posCategoryPicker",
-        selectedPosCategory,
-        category => {
+const currentFilterVal = filterSelect.value;
 
-            selectedPosCategory = category;
+const existingCats = [
+"لحوم وكبدة",
+"أسماك ورنجة",
+"توابل",
+"بيض",
+"مصنعات وبطاطس"
+];
 
-            renderPosCategoryPicker();
-            renderPosBatches();
+const dynamicCats = [
+...new Set(localBatches.map(p=>p.category).filter(Boolean))
+];
 
-        }
-    );
+const allCats = [
+...new Set([...existingCats,...dynamicCats])
+];
 
-}
+dynamicCats.forEach(cat=>{
 
-// تحديث قائمة اختيار الأقسام في المخزون
-function updateInventoryCategorySelect() {
+if(!existingCats.includes(cat) && cat!=="مصروفات") {
 
-    const select =
-        document.getElementById("filterByCategorySelect");
+let exists = Array.from(addSelect.options)
+.some(opt=>opt.value===cat);
 
-    if (!select) return;
+if(!exists) {
 
-    const currentValue = selectedInventoryCategory;
+const opt = document.createElement("option");
 
-    select.innerHTML = "";
+opt.value = cat;
+opt.textContent = cat;
 
-    const allOption = document.createElement("option");
-
-    allOption.value = "ALL";
-    allOption.textContent = "كل الأقسام";
-
-    select.appendChild(allOption);
-
-    getAllCategories().forEach(category => {
-
-        const option = document.createElement("option");
-
-        option.value = category;
-        option.textContent = category;
-
-        select.appendChild(option);
-
-    });
-
-    const exists = [...select.options].some(
-        option => option.value === currentValue
-    );
-
-    select.value = exists ? currentValue : "ALL";
+addSelect.insertBefore(
+opt,
+addSelect.options[addSelect.options.length-1]
+);
 
 }
 
-// عرض المخزون حسب القسم
+}
+
+});
+
+filterSelect.innerHTML =
+'<option value="ALL">عرض كل الأقسام</option>';
+
+allCats.forEach(cat=>{
+
+if(cat==="مصروفات") return;
+
+const opt = document.createElement("option");
+
+opt.value = cat;
+opt.textContent = cat;
+
+filterSelect.appendChild(opt);
+
+});
+
+if(Array.from(filterSelect.options)
+.some(o=>o.value===currentFilterVal)) {
+
+filterSelect.value=currentFilterVal;
+
+}
+
+}
+
+
+// عرض المخزون
+
 window.renderFilteredInventory = function() {
 
-    const select =
-        document.getElementById("filterByCategorySelect");
+const selectedCat =
+document.getElementById("filterByCategorySelect").value;
 
-    if (select) {
-        selectedInventoryCategory = select.value;
-    }
+const tbody =
+document.getElementById("allInventoryBody");
 
-    const tbody =
-        document.getElementById("allInventoryBody");
+tbody.innerHTML="";
 
-    if (!tbody) return;
+const filtered =
+selectedCat==="ALL"
+? localBatches
+: localBatches.filter(p=>p.category===selectedCat);
 
-    let products = [...localBatches];
+if(filtered.length===0) {
 
-    if (selectedInventoryCategory !== "ALL") {
+tbody.innerHTML =
+'<tr><td colspan="9">لا توجد منتجات في هذا القسم حالياً.</td></tr>';
 
-        products = products.filter(
-            p => p.category === selectedInventoryCategory
-        );
-
-    }
-
-    products.sort((a, b) =>
-        String(a.name || "").localeCompare(
-            String(b.name || ""),
-            "ar"
-        )
-    );
-
-    tbody.innerHTML = "";
-
-    if (products.length === 0) {
-
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="9">لا توجد منتجات في هذا القسم حالياً.</td>
-            </tr>
-        `;
-
-        return;
-
-    }
-
-    products.forEach(product => {
-
-        const tr = document.createElement("tr");
-
-        const quantity = Number(product.quantity || 0);
-
-        const expDate = product.expDate || "";
-
-        let status = "متاح";
-        let statusClass = "";
-
-        if (quantity <= 0) {
-
-            status = "نفد المخزون";
-            statusClass = "badge-danger";
-
-        } else if (expDate) {
-
-            const today = new Date();
-            today.setHours(0, 0, 0, 0);
-
-            const expiry = new Date(expDate + "T00:00:00");
-
-            const daysLeft = Math.ceil(
-                (expiry - today) / (1000 * 60 * 60 * 24)
-            );
-
-            if (daysLeft < 0) {
-
-                status = "منتهي الصلاحية";
-                statusClass = "badge-danger";
-
-            } else if (daysLeft <= 30) {
-
-                status = "قرب الانتهاء";
-                statusClass = "badge-warning";
-
-            }
-
-        }
-
-        const values = [
-            product.category || "",
-            product.name || "",
-            quantity + " " + (product.unit || ""),
-            Number(product.buyPrice || 0).toFixed(2),
-            Number(product.sellPrice || 0).toFixed(2),
-            product.prodDate || "-",
-            expDate || "-"
-        ];
-
-        values.forEach(value => {
-
-            const td = document.createElement("td");
-
-            td.textContent = value;
-
-            tr.appendChild(td);
-
-        });
-
-        const statusTd = document.createElement("td");
-
-        const badge = document.createElement("span");
-
-        badge.textContent = status;
-
-        if (statusClass) {
-            badge.className = statusClass;
-        }
-
-        statusTd.appendChild(badge);
-
-        tr.appendChild(statusTd);
-
-        const actionTd = document.createElement("td");
-
-        const editButton = document.createElement("button");
-
-        editButton.type = "button";
-        editButton.textContent = "✏️ تعديل";
-        editButton.className = "tab-btn";
-
-        editButton.onclick = () => editProduct(product.id);
-
-        actionTd.appendChild(editButton);
-
-        const deleteButton = document.createElement("button");
-
-        deleteButton.type = "button";
-        deleteButton.textContent = "حذف";
-        deleteButton.className = "btn-delete";
-
-        deleteButton.style.marginTop = "5px";
-
-        deleteButton.onclick = () => deleteProduct(product.id);
-
-        actionTd.appendChild(deleteButton);
-
-        tr.appendChild(actionTd);
-
-        tbody.appendChild(tr);
-
-    });
-
-};
-
-// تعديل المنتج والأسعار
-window.editProduct = async function(id) {
-
-    const product = localBatches.find(p => p.id === id);
-
-    if (!product) {
-        alert("المنتج غير موجود.");
-        return;
-    }
-
-    const newName = prompt(
-        "اسم المنتج:",
-        product.name || ""
-    );
-
-    if (newName === null) return;
-
-    if (!newName.trim()) {
-        alert("اسم المنتج لا يمكن أن يكون فارغاً.");
-        return;
-    }
-
-    const newBuyPrice = prompt(
-        "سعر الشراء الجديد:",
-        product.buyPrice || 0
-    );
-
-    if (newBuyPrice === null) return;
-
-    const newSellPrice = prompt(
-        "سعر البيع الجديد:",
-        product.sellPrice || 0
-    );
-
-    if (newSellPrice === null) return;
-
-    const buy = Number(newBuyPrice);
-    const sell = Number(newSellPrice);
-
-    if (
-        !Number.isFinite(buy) ||
-        !Number.isFinite(sell) ||
-        buy < 0 ||
-        sell < 0
-    ) {
-
-        alert("من فضلك أدخل أسعاراً صحيحة.");
-
-        return;
-
-    }
-
-    const newCategory = prompt(
-        "القسم:",
-        product.category || ""
-    );
-
-    if (newCategory === null) return;
-
-    if (!newCategory.trim()) {
-        alert("اسم القسم لا يمكن أن يكون فارغاً.");
-        return;
-    }
-
-    try {
-
-        await updateDoc(
-            doc(db, "products", id),
-            {
-                name: newName.trim(),
-                buyPrice: buy,
-                sellPrice: sell,
-                category: newCategory.trim()
-            }
-        );
-
-        alert("تم تعديل المنتج والأسعار بنجاح.");
-
-    } catch (error) {
-
-        alert("حدث خطأ أثناء التعديل: " + error.message);
-
-    }
-
-};
-
-// حذف دفعة من المخزون
-window.deleteProduct = async function(id) {
-
-    const product = localBatches.find(p => p.id === id);
-
-    if (!product) return;
-
-    const confirmed = confirm(
-        "هل أنت متأكد من حذف دفعة " +
-        product.name +
-        " من المخزون؟"
-    );
-
-    if (!confirmed) return;
-
-    try {
-
-        await deleteDoc(doc(db, "products", id));
-
-        alert("تم حذف الدفعة.");
-
-    } catch (error) {
-
-        alert("تعذر الحذف: " + error.message);
-
-    }
-
-};
-
-// ==========================================
-// الجزء الثالث: الكاشير والتقارير والمزامنة
-// ==========================================
-
-// عرض دفعات المنتجات في الكاشير
-function renderPosBatches() {
-
-    const select =
-        document.getElementById("sellSelectBatch");
-
-    if (!select) return;
-
-    const previousValue = select.value;
-
-    select.innerHTML = "";
-
-    const defaultOption = document.createElement("option");
-
-    defaultOption.value = "";
-    defaultOption.textContent = "-- اختر المنتج --";
-
-    select.appendChild(defaultOption);
-
-    let products = localBatches.filter(
-        p => Number(p.quantity || 0) > 0
-    );
-
-    if (selectedPosCategory !== "ALL") {
-
-        products = products.filter(
-            p => p.category === selectedPosCategory
-        );
-
-    }
-
-    products.sort((a, b) =>
-        String(a.name || "").localeCompare(
-            String(b.name || ""),
-            "ar"
-        )
-    );
-
-    products.forEach(product => {
-
-        const option = document.createElement("option");
-
-        option.value = product.id;
-
-        option.textContent =
-            `${product.name} | ${product.category} | المتاح: ${product.quantity} ${product.unit || ""} | السعر: ${product.sellPrice} ج`;
-
-        select.appendChild(option);
-
-    });
-
-    const stillExists = [...select.options].some(
-        option => option.value === previousValue
-    );
-
-    if (stillExists) {
-        select.value = previousValue;
-    }
-
-    calculatePosTotal();
+return;
 
 }
 
-// حساب إجمالي البيع
-window.calculatePosTotal = function() {
+filtered.forEach(item=>{
 
-    const id =
-        document.getElementById("sellSelectBatch").value;
+const tr=document.createElement("tr");
 
-    const quantity =
-        Number(document.getElementById("sellQuantity").value || 0);
+tr.innerHTML=`
 
-    const product = localBatches.find(p => p.id === id);
+<td>${item.category}</td>
 
-    let total = 0;
+<td><strong>${item.name}</strong></td>
 
-    if (product && quantity > 0) {
+<td>${item.quantity} ${item.unit || "وحدة"}</td>
 
-        total =
-            quantity * Number(product.sellPrice || 0);
+<td>${item.buyPrice} ج.م</td>
 
-    }
+<td>${item.sellPrice} ج.م</td>
 
-    document.getElementById("posTotalDisplay").value =
-        total.toFixed(2) + " ج.م";
+<td>${item.prodDate || "-"}</td>
 
-};
+<td>${item.expDate || "-"}</td>
 
-// تنفيذ البيع
-document.getElementById("sellForm")
-.addEventListener("submit", async e => {
+<td>
+${item.quantity<=2
+? "<span class='badge-warning'>مخزون منخفض</span>"
+: "سليم"}
+</td>
 
-    e.preventDefault();
+<td>
+<button class="btn-delete"
+onclick="deleteBatch('${item.id}')">
+حذف
+</button>
+</td>
 
-    const id =
-        document.getElementById("sellSelectBatch").value;
+`;
 
-    const quantity =
-        Number(document.getElementById("sellQuantity").value || 0);
-
-    const product = localBatches.find(p => p.id === id);
-
-    if (!product) {
-
-        alert("اختار منتجاً أولاً.");
-
-        return;
-
-    }
-
-    if (!Number.isFinite(quantity) || quantity <= 0) {
-
-        alert("أدخل كمية صحيحة.");
-
-        return;
-
-    }
-
-    const available = Number(product.quantity || 0);
-
-    if (quantity > available) {
-
-        alert(
-            "الكمية المطلوبة أكبر من المخزون المتاح.\n" +
-            "المتاح: " + available + " " + product.unit
-        );
-
-        return;
-
-    }
-
-    const sellPrice = Number(product.sellPrice || 0);
-    const buyPrice = Number(product.buyPrice || 0);
-
-    const total = quantity * sellPrice;
-
-    const profit = quantity * (sellPrice - buyPrice);
-
-    const confirmed = confirm(
-        "تأكيد البيع؟\n\n" +
-        "المنتج: " + product.name + "\n" +
-        "القسم: " + product.category + "\n" +
-        "الكمية: " + quantity + " " + product.unit + "\n" +
-        "الإجمالي: " + total.toFixed(2) + " ج.م\n" +
-        "الربح: " + profit.toFixed(2) + " ج.م"
-    );
-
-    if (!confirmed) return;
-
-    try {
-
-        // خصم الكمية من المخزون
-        await updateDoc(
-            doc(db, "products", id),
-            {
-                quantity: available - quantity
-            }
-        );
-
-        // تسجيل عملية البيع
-        await addDoc(salesRef, {
-
-            productId: id,
-
-            category: product.category,
-
-            productName: product.name,
-
-            soldQty: quantity,
-
-            unit: product.unit || "",
-
-            buyPrice: buyPrice,
-
-            sellPrice: sellPrice,
-
-            total: total,
-
-            profit: profit,
-
-            soldAt: new Date()
-
-        });
-
-        document.getElementById("sellForm").reset();
-
-        document.getElementById("sellQuantity").value = 0;
-
-        calculatePosTotal();
-
-        alert(
-            "تم البيع بنجاح!\n" +
-            "الإجمالي: " + total.toFixed(2) + " ج.م"
-        );
-
-    } catch (error) {
-
-        alert("حدث خطأ أثناء البيع: " + error.message);
-
-    }
+tbody.appendChild(tr);
 
 });
 
-// تحويل تاريخ البيع إلى Date
-function getSaleDate(sale) {
-
-    if (!sale.soldAt) return null;
-
-    if (sale.soldAt instanceof Date) {
-        return sale.soldAt;
-    }
-
-    if (typeof sale.soldAt.toDate === "function") {
-        return sale.soldAt.toDate();
-    }
-
-    const date = new Date(sale.soldAt);
-
-    return Number.isNaN(date.getTime()) ? null : date;
-
-}
-
-// استخراج الشهر
-function getMonthKey(date) {
-
-    return (
-        date.getFullYear() +
-        "-" +
-        String(date.getMonth() + 1).padStart(2, "0")
-    );
-
-}
-
-// رأس المال الحالي
-function calculateCapital() {
-
-    return localBatches.reduce((sum, product) => {
-
-        const quantity = Number(product.quantity || 0);
-
-        const buyPrice = Number(product.buyPrice || 0);
-
-        return sum + quantity * buyPrice;
-
-    }, 0);
-
-}
-
-// عرض التقارير
-function renderReports() {
-
-    const monthInput =
-        document.getElementById("reportMonth");
-
-    if (!monthInput) return;
-
-    const selectedMonth = monthInput.value;
-
-    const capital = calculateCapital();
-
-    document.getElementById("totalCapital").textContent =
-        capital.toFixed(2) + " ج.م";
-
-    const monthlySales = allSales.filter(sale => {
-
-        const date = getSaleDate(sale);
-
-        return date && getMonthKey(date) === selectedMonth;
-
-    });
-
-    const monthlyProfit = monthlySales.reduce(
-        (sum, sale) => sum + Number(sale.profit || 0),
-        0
-    );
-
-    document.getElementById("novProfit").textContent =
-        monthlyProfit.toFixed(2) + " ج.م";
-
-    const [year, month] = selectedMonth.split("-").map(Number);
-
-    const daysInMonth = new Date(year, month, 0).getDate();
-
-    const averageProfit =
-        daysInMonth > 0 ? monthlyProfit / daysInMonth : 0;
-
-    document.getElementById("avgDailyProfit").textContent =
-        averageProfit.toFixed(2) + " ج.م / يوم";
-
-    // تقرير الأقسام
-    renderCategoryReports(monthlySales);
-
-    // تقرير الشهور
-    renderMonthlyProfits();
-
-}
-
-// أرباح كل قسم
-function renderCategoryReports(monthlySales) {
-
-    const tbody =
-        document.getElementById("categoryReportsBody");
-
-    tbody.innerHTML = "";
-
-    const categories = getAllCategories();
-
-    categories.forEach(category => {
-
-        const categoryProducts = localBatches.filter(
-            p => p.category === category
-        );
-
-        const capital = categoryProducts.reduce(
-            (sum, p) =>
-                sum +
-                Number(p.quantity || 0) *
-                Number(p.buyPrice || 0),
-            0
-        );
-
-        const profit = monthlySales
-            .filter(s => s.category === category)
-            .reduce(
-                (sum, s) => sum + Number(s.profit || 0),
-                0
-            );
-
-        const tr = document.createElement("tr");
-
-        [
-            category,
-            capital.toFixed(2) + " ج.م",
-            profit.toFixed(2) + " ج.م"
-        ].forEach(value => {
-
-            const td = document.createElement("td");
-
-            td.textContent = value;
-
-            tr.appendChild(td);
-
-        });
-
-        tbody.appendChild(tr);
-
-    });
-
-}
-
-// الأرباح الشهرية
-function renderMonthlyProfits() {
-
-    const tbody =
-        document.getElementById("monthlyProfitsBody");
-
-    tbody.innerHTML = "";
-
-    const months = {};
-
-    allSales.forEach(sale => {
-
-        const date = getSaleDate(sale);
-
-        if (!date) return;
-
-        const key = getMonthKey(date);
-
-        if (!months[key]) {
-            months[key] = 0;
-        }
-
-        months[key] += Number(sale.profit || 0);
-
-    });
-
-    const keys = Object.keys(months).sort().reverse();
-
-    if (keys.length === 0) {
-
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="4">لا توجد مبيعات مسجلة حتى الآن.</td>
-            </tr>
-        `;
-
-        return;
-
-    }
-
-    keys.forEach(key => {
-
-        const tr = document.createElement("tr");
-
-        const tdMonth = document.createElement("td");
-
-        tdMonth.textContent = key;
-
-        const tdSales = document.createElement("td");
-
-        tdSales.textContent =
-            Number(months[key]).toFixed(2) + " ج.م";
-
-        const tdExpenses = document.createElement("td");
-
-        const expenses = allSales
-            .filter(s => {
-
-                const date = getSaleDate(s);
-
-                return (
-                    date &&
-                    getMonthKey(date) === key &&
-                    s.category === "مصروفات"
-                );
-
-            })
-            .reduce(
-                (sum, s) => sum + Math.abs(Number(s.profit || 0)),
-                0
-            );
-
-        tdExpenses.textContent =
-            expenses.toFixed(2) + " ج.م";
-
-        const tdNet = document.createElement("td");
-
-        tdNet.textContent =
-            Number(months[key]).toFixed(2) + " ج.م";
-
-        tr.append(
-            tdMonth,
-            tdSales,
-            tdExpenses,
-            tdNet
-        );
-
-        tbody.appendChild(tr);
-
-    });
-
-}
-
-// تنبيهات الصلاحية
-function renderExpiringProducts() {
-
-    const tbody =
-        document.getElementById("expiringBody");
-
-    tbody.innerHTML = "";
-
-    const today = new Date();
-
-    today.setHours(0, 0, 0, 0);
-
-    const products = localBatches.filter(product => {
-
-        if (!product.expDate) return false;
-
-        if (Number(product.quantity || 0) <= 0) return false;
-
-        const expiry = new Date(product.expDate + "T00:00:00");
-
-        const daysLeft = Math.ceil(
-            (expiry - today) / (1000 * 60 * 60 * 24)
-        );
-
-        return daysLeft <= 30;
-
-    });
-
-    if (products.length === 0) {
-
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="5">لا توجد منتجات قريبة من انتهاء الصلاحية.</td>
-            </tr>
-        `;
-
-        return;
-
-    }
-
-    products.forEach(product => {
-
-        const expiry = new Date(product.expDate + "T00:00:00");
-
-        const daysLeft = Math.ceil(
-            (expiry - today) / (1000 * 60 * 60 * 24)
-        );
-
-        const tr = document.createElement("tr");
-
-        const values = [
-            product.category || "",
-            product.name || "",
-            product.quantity + " " + (product.unit || ""),
-            product.expDate,
-            daysLeft < 0
-                ? "منتهي الصلاحية"
-                : "متبقي " + daysLeft + " يوم"
-        ];
-
-        values.forEach(value => {
-
-            const td = document.createElement("td");
-
-            td.textContent = value;
-
-            tr.appendChild(td);
-
-        });
-
-        tbody.appendChild(tr);
-
-    });
-
-}
-
-// تصفير البيانات
-window.resetAllData = async function() {
-
-    const confirmed = confirm(
-        "تحذير شديد!\n\n" +
-        "سيتم حذف جميع المنتجات والمبيعات والمصروفات نهائياً.\n" +
-        "هل أنت متأكد؟"
-    );
-
-    if (!confirmed) return;
-
-    const secondConfirm = confirm(
-        "هل تؤكد الحذف النهائي؟ لا يمكن التراجع عن هذه العملية."
-    );
-
-    if (!secondConfirm) return;
-
-    try {
-
-        for (const product of [...localBatches]) {
-
-            await deleteDoc(
-                doc(db, "products", product.id)
-            );
-
-        }
-
-        for (const sale of [...allSales]) {
-
-            await deleteDoc(
-                doc(db, "sales", sale.id)
-            );
-
-        }
-
-        alert("تم حذف البيانات.");
-
-    } catch (error) {
-
-        alert("حدث خطأ أثناء التصفير: " + error.message);
-
-    }
-
 };
 
-// تحديث المخزون عند وصول بيانات جديدة من Firebase
-onSnapshot(productsRef, snapshot => {
 
-    localBatches = snapshot.docs.map(item => ({
-        id: item.id,
-        ...item.data()
-    }));
+// البحث في الكاشير
 
-    updateAutocompleteLists();
+window.filterPosDropdown = function() {
 
-    updateInventoryCategorySelect();
+const searchVal = normalizeArabicSearch(
+document.getElementById("searchPos")?.value || ""
+);
 
-    // لو القسم المحدد اختفى، ارجع لكل الأقسام
-    if (
-        selectedInventoryCategory !== "ALL" &&
-        !getAllCategories().includes(selectedInventoryCategory)
-    ) {
-        selectedInventoryCategory = "ALL";
-    }
+const select =
+document.getElementById("sellSelectBatch");
 
-    if (
-        selectedPosCategory !== "ALL" &&
-        !getAllCategories().includes(selectedPosCategory)
-    ) {
-        selectedPosCategory = "ALL";
-    }
+select.innerHTML =
+'<option value="">-- اختر الدفعة (القسم ➔ المنتج) --</option>';
 
-    renderInventoryCategoryPicker();
 
-    renderPosCategoryPicker();
+const sortedBatches = [...localBatches].sort((a,b)=>{
 
-    renderFilteredInventory();
+const categoryCompare =
+normalizeArabicSearch(a.category)
+.localeCompare(normalizeArabicSearch(b.category),"ar");
 
-    renderPosBatches();
+if(categoryCompare!==0) {
+return categoryCompare;
+}
 
-    renderExpiringProducts();
-
-    renderReports();
-
-}, error => {
-
-    console.error("Products listener error:", error);
-
-    alert("تعذر تحميل المخزون من قاعدة البيانات.");
+return normalizeArabicSearch(a.name)
+.localeCompare(normalizeArabicSearch(b.name),"ar");
 
 });
 
-// تحديث المبيعات عند وصول بيانات جديدة
-onSnapshot(salesRef, snapshot => {
 
-    allSales = snapshot.docs.map(item => ({
-        id: item.id,
-        ...item.data()
-    }));
+sortedBatches.forEach(item=>{
 
-    renderReports();
+if(item.quantity>0) {
 
-}, error => {
+const searchableText = normalizeArabicSearch(
 
-    console.error("Sales listener error:", error);
+`${item.category} ${item.name} ${item.buyPrice} ${item.expDate}`
+
+);
+
+if(searchableText.includes(searchVal)) {
+
+const opt=document.createElement("option");
+
+opt.value=item.id;
+
+opt.textContent=
+`[${item.category}] ➔ ${item.name} | متبقي: ${item.quantity} ${item.unit || "وحدة"} | سعر الوحدة: ${item.sellPrice}ج | ينتهي: ${item.expDate}`;
+
+select.appendChild(opt);
+
+}
+
+}
 
 });
-
-// تحديث التقارير عند تغيير الشهر
-document.getElementById("reportMonth")
-.addEventListener("change", renderReports);
-
-// التهيئة الأولى
-refreshProductUnits();
-
-renderInventoryCategoryPicker();
-
-renderPosCategoryPicker();
 
 calculatePosTotal();
+
+};
+
+
+// حساب إجمالي الكاشير
+
+window.calculatePosTotal = function() {
+
+const id =
+document.getElementById("sellSelectBatch").value;
+
+const qty =
+parseFloat(document.getElementById("sellQuantity").value) || 0;
+
+const item = localBatches.find(p=>p.id===id);
+
+const total = item ? qty*item.sellPrice : 0;
+
+document.getElementById("posTotalDisplay").value =
+total.toFixed(2)+" ج.م";
+
+};
+
+
+// إتمام البيع
+
+document.getElementById("sellForm")
+.addEventListener("submit",async e=>{
+
+e.preventDefault();
+
+const id =
+document.getElementById("sellSelectBatch").value;
+
+const item = localBatches.find(p=>p.id===id);
+
+if(!item) {
+return alert("اختر دفعة صحيحة من القائمة!");
+}
+
+const sellQty =
+parseFloat(document.getElementById("sellQuantity").value) || 0;
+
+if(sellQty<=0) {
+return alert("اكتب كمية أكبر من صفر!");
+}
+
+if(sellQty>item.quantity+0.001) {
+
+return alert(
+`الكمية المطلوبة (${sellQty}) أكبر من المتاح (${item.quantity})!`
+);
+
+}
+
+const finalSellQty = Math.min(sellQty,item.quantity);
+
+const newQty =
+Number((item.quantity-finalSellQty).toFixed(3));
+
+const profitMade =
+finalSellQty*(item.sellPrice-item.buyPrice);
+
+try {
+
+await updateDoc(doc(db,"products",id),{
+quantity:newQty
+});
+
+await addDoc(salesRef,{
+
+category:item.category,
+productName:item.name,
+soldQty:finalSellQty,
+profit:profitMade,
+soldAt:new Date()
+
+});
+
+alert(
+`تم البيع بنجاح! المكسب: ${profitMade.toFixed(2)} ج.م`
+);
+
+document.getElementById("sellForm").reset();
+
+document.getElementById("posTotalDisplay").value="0 ج.م";
+
+filterPosDropdown();
+
+} catch(err) {
+
+alert("خطأ أثناء البيع: "+err.message);
+
+}
+
+});
+
+
+// حذف دفعة
+
+window.deleteBatch = async function(id) {
+
+if(confirm("هل أنت متأكد من حذف هذه الدفعة؟")) {
+
+try {
+
+await deleteDoc(doc(db,"products",id));
+
+} catch(err) {
+
+alert("حدث خطأ أثناء الحذف: "+err.message);
+
+}
+
+}
+
+};
+
+
+// تنبيهات الصلاحية
+
+function renderExpiringProducts() {
+
+const tbody =
+document.getElementById("expiringBody");
+
+tbody.innerHTML="";
+
+const today = new Date();
+
+today.setHours(0,0,0,0);
+
+const criticalItems = localBatches.filter(item=>{
+
+if(!item.expDate || item.quantity<=0) return false;
+
+const expDate = new Date(item.expDate+"T00:00:00");
+
+if(isNaN(expDate.getTime())) return false;
+
+const diffDays =
+Math.ceil((expDate-today)/(1000*60*60*24));
+
+return diffDays<=14;
+
+});
+
+if(criticalItems.length===0) {
+
+tbody.innerHTML =
+'<tr><td colspan="5">لا توجد منتجات قريبة من انتهاء الصلاحية حالياً.</td></tr>';
+
+return;
+
+}
+
+criticalItems.forEach(item=>{
+
+const expDate =
+new Date(item.expDate+"T00:00:00");
+
+const diffDays =
+Math.ceil((expDate-today)/(1000*60*60*24));
+
+let badge =
+diffDays<=0
+? "<span class='badge-danger'>منتهي الصلاحية!</span>"
+: `<span class='badge-danger'>ينتهي خلال ${diffDays} يوم</span>`;
+
+const tr=document.createElement("tr");
+
+tr.innerHTML=`
+
+<td>${item.category}</td>
+
+<td><strong>${item.name}</strong></td>
+
+<td>${item.quantity} ${item.unit || "وحدة"}</td>
+
+<td>${item.expDate}</td>
+
+<td>${badge}</td>
+
+`;
+
+tbody.appendChild(tr);
+
+});
+
+}
+
+
+// تقارير الأرباح لجميع الشهور
+
+function updateReports() {
+
+
+// رأس المال
+
+let totalCap=0;
+
+localBatches.forEach(item=>{
+
+totalCap +=
+Number(item.quantity)*Number(item.buyPrice);
+
+});
+
+document.getElementById("totalCapital").textContent =
+totalCap.toFixed(2)+" ج.م";
+
+
+// الشهر المختار
+
+const selectedMonth =
+document.getElementById("reportMonth").value ||
+new Date().toISOString().slice(0,7);
+
+const [year,month] =
+selectedMonth.split("-").map(Number);
+
+
+// تجميع بيانات الشهور
+
+const monthlyData={};
+
+allSales.forEach(sale=>{
+
+const d=sale.soldAtDate;
+
+if(!d || isNaN(d.getTime())) return;
+
+const key =
+`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+
+if(!monthlyData[key]) {
+
+monthlyData[key]={
+salesProfit:0,
+expenses:0
+};
+
+}
+
+const amount=Number(sale.profit)||0;
+
+if(sale.category==="مصروفات") {
+
+monthlyData[key].expenses += Math.abs(amount);
+
+} else {
+
+monthlyData[key].salesProfit += amount;
+
+}
+
+});
+
+
+// إضافة الشهر المختار حتى لو لم توجد فيه حركات
+
+if(!monthlyData[selectedMonth]) {
+
+monthlyData[selectedMonth]={
+salesProfit:0,
+expenses:0
+};
+
+}
+
+
+// حساب صافي الربح
+
+const selectedData=monthlyData[selectedMonth];
+
+const monthProfit =
+selectedData.salesProfit-selectedData.expenses;
+
+
+// متوسط الربح اليومي
+
+const activeDays=new Set();
+
+allSales.forEach(sale=>{
+
+const d=sale.soldAtDate;
+
+if(
+d &&
+d.getFullYear()===year &&
+d.getMonth()===month-1 &&
+sale.category!=="مصروفات"
+) {
+
+activeDays.add(
+`${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
+);
+
+}
+
+});
+
+const avgDaily =
+activeDays.size
+? selectedData.salesProfit/activeDays.size
+: 0;
+
+
+document.getElementById("novProfit").textContent =
+monthProfit.toFixed(2)+" ج.م";
+
+document.getElementById("avgDailyProfit").textContent =
+avgDaily.toFixed(2)+" ج.م / يوم";
+
+
+// جدول كل الشهور
+
+const monthlyBody =
+document.getElementById("monthlyProfitsBody");
+
+monthlyBody.innerHTML="";
+
+const months =
+Object.keys(monthlyData).sort().reverse();
+
+if(months.length===0) {
+
+monthlyBody.innerHTML =
+'<tr><td colspan="4">لا توجد حركات مسجلة حتى الآن.</td></tr>';
+
+} else {
+
+months.forEach(key=>{
+
+const data=monthlyData[key];
+
+const netProfit =
+data.salesProfit-data.expenses;
+
+const tr=document.createElement("tr");
+
+tr.innerHTML=`
+
+<td>
+<strong>${key}</strong>
+${key===selectedMonth ? " ⭐" : ""}
+</td>
+
+<td style="color:green">
+${data.salesProfit.toFixed(2)} ج.م
+</td>
+
+<td style="color:red">
+${data.expenses.toFixed(2)} ج.م
+</td>
+
+<td style="
+font-weight:bold;
+color:${netProfit>=0 ? "green" : "red"}">
+
+${netProfit.toFixed(2)} ج.م
+
+</td>
+
+`;
+
+monthlyBody.appendChild(tr);
+
+});
+
+}
+
+
+// تقارير الأقسام
+
+const categories=[...new Set([
+
+...localBatches.map(p=>p.category),
+
+...allSales
+.map(s=>s.category)
+.filter(c=>c && c!=="مصروفات")
+
+].filter(Boolean))];
+
+
+const tbody =
+document.getElementById("categoryReportsBody");
+
+tbody.innerHTML="";
+
+if(categories.length===0) {
+
+tbody.innerHTML =
+'<tr><td colspan="3">لا توجد بيانات حالياً</td></tr>';
+
+return;
+
+}
+
+
+categories.forEach(cat=>{
+
+const catCapital =
+localBatches
+.filter(p=>p.category===cat)
+.reduce(
+(sum,p)=>sum+Number(p.quantity)*Number(p.buyPrice),
+0
+);
+
+
+const catProfit =
+allSales
+.filter(s=>
+s.category===cat &&
+s.soldAtDate &&
+s.soldAtDate.getFullYear()===year &&
+s.soldAtDate.getMonth()===month-1
+)
+.reduce(
+(sum,s)=>sum+(Number(s.profit)||0),
+0
+);
+
+
+const tr=document.createElement("tr");
+
+tr.innerHTML=`
+
+<td><strong>${cat}</strong></td>
+
+<td>${catCapital.toFixed(2)} ج.م</td>
+
+<td style="
+color:${catProfit>=0 ? "green" : "red"};
+font-weight:bold">
+
+${catProfit.toFixed(2)} ج.م
+
+</td>
+
+`;
+
+tbody.appendChild(tr);
+
+});
+
+}
+
+
+// تحديث التقارير عند تغيير الشهر
+
+document.getElementById("reportMonth")
+.addEventListener("change",updateReports);
+
+
+// تصفير البيانات
+
+window.resetAllData = async function() {
+
+if(!confirm(
+"تحذير: سيتم حذف كل المنتجات والمبيعات والمصروفات نهائياً. هل تريد المتابعة؟"
+)) return;
+
+if(prompt("للتأكيد اكتب كلمة: البركة")!=="البركة") {
+
+alert("لم يتم التصفير؛ كلمة التأكيد غير مطابقة.");
+
+return;
+
+}
+
+try {
+
+await Promise.all([
+
+...localBatches.map(item=>
+deleteDoc(doc(db,"products",item.id))
+),
+
+...allSales
+.filter(s=>s.id)
+.map(s=>deleteDoc(doc(db,"sales",s.id)))
+
+]);
+
+alert("تم تصفير بيانات الموقع.");
+
+} catch(err) {
+
+alert(
+"تعذر إكمال التصفير. راجع صلاحيات قاعدة البيانات: "+err.message
+);
+
+}
+
+};
+
+
+// التشغيل الأولي
+
+onCategoryChange();
 
 </script>
 
